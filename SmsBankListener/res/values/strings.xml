@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMS Bank Listener</string>
+    <string name="app_graph">График</string>
+    <string name="app_profiles_list">Список профилей</string>
+    <string name="app_test_db">Тестирование БД</string>
+    
+    <string name="graph_menu_main">Главная</string>
+    
+    <string name="action_main">Main</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_profiles_list">Profiles List</string>
+    <string name="action_aboute">About</string>
+    <!-- Buttons -->
+    <string name="delete_record">Удалить запись</string>
+</resources>

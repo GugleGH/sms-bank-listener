@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="ru.nosov.SMSreader"
+      android:versionCode="1"
+      android:versionName="1.0">
+    
+    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
+        <activity android:name="ActivityMain"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name="ActivityGraph"
+                  android:label="@string/app_graph">
+        </activity>
+        
+        <activity android:name="ActivityProfilesList"
+                  android:label="@string/app_profiles_list">
+        </activity>
+        
+        <activity android:name="ActivityTestDB"
+                  android:label="@string/app_test_db">
+        </activity>
+        
+        <receiver android:name="ru.nosov.SMSreader.receiver.SMSMonitor" android:exported="true">
+            <!--<intent-filter android:priority="100">-->
+            <intent-filter >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+    
+        <service android:name="ru.nosov.SMSreader.receiver.SmsService" />
+        
+    </application>
+    
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    
+    <!--<uses-library android:name="string" android:required=["true" | "false"] />-->
+
+</manifest>

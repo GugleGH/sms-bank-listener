@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    <TextView 
+        android:id="@+id/textViewTestDB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TestDB" />
+    <!-- ********************* Profiles ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBProfiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBProfiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profiles" />
+        <EditText
+            android:id="@+id/etTestDBProfiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    <!-- ********************* BankAccount ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBBankAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBBankAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BankAccount" />
+        <EditText
+            android:id="@+id/etTestDBBankAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    <!-- ********************* Phones ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBPhones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBPhones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone" />
+        <EditText
+            android:id="@+id/etTestDBPhones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    <!-- ********************* Card ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Card" />
+        <EditText
+            android:id="@+id/etTestDBCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    <!-- ********************* Transaction ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBTransaction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBTransaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Transaction" />
+        <EditText
+            android:id="@+id/etTestDBTransaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    <!-- ********************* Regex ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBRegex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBRegex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Regex" />
+        <EditText
+            android:id="@+id/etTestDBRegex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    <!-- ********************* BankName ************************ -->
+    <ListView 
+        android:id="@+id/lvTestDBBank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bTestDBBank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BankName" />
+        <EditText
+            android:id="@+id/etTestDBBank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number" />
+    </LinearLayout>
+    
+</LinearLayout>

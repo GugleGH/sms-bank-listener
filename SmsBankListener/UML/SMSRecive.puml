@@ -1,0 +1,29 @@
+@startuml
+
+(*) --> "SMSRecive"
+
+SMSRecive --> StartSMSService
+
+if "validateDisplayAddress" then
+    --> [true] "getOriginatingAddress"
+    if "validateOriginatingAddress" then
+        --> [true] "getSMSBody"
+        if "validateSMSBody" then
+            --> [true] "getCardNumber"
+            if "validateCardNumber" then
+                --> [true] "SaveData"
+                SaveData --> (*)
+            else
+                --> [false] (*)
+            endif
+        else
+            --> [false] (*)
+        endif
+    else 
+        --> [false] (*)
+    endif
+else
+    --> [false] (*)
+endif
+
+@enduml

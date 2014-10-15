@@ -1,0 +1,29 @@
+@startuml
+
+(*) --> "HH:MM:SS = 00:00:00" as date
+
+partition "New Month"
+date --> if "" then
+    --> [true] "getTransactionMonth"
+    getTransactionMonth --> saveBalanceMonth
+    saveBalanceMonth -right-> "updateBDMonth"
+else
+    --> [false] "updateBDMonth"
+endif
+end partition
+
+"updateBDMonth" --> (*)
+
+partition "New Year"
+date --> if "" then
+    --> [true] "getTransactionYear"
+    getTransactionYear --> saveBalanceYear
+    saveBalanceYear -left-> "updateBDYear"
+else
+    --> [false] "updateBDYear"
+endif
+end partition
+
+"updateBDYear" --> (*)
+
+@enduml

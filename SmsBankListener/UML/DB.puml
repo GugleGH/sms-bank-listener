@@ -1,0 +1,35 @@
+@startuml
+
+object profile {
+    _id = autoincrement
+    visibleName
+    displayAddress
+}
+object phone {
+    _id = autoincrement
+    _id_profile
+    originatingAddress
+}
+object card {
+    _id = autoincrement
+    _id_phone
+    cardNumber
+}
+object body {
+    _id = autoincrement
+    _id_card
+    smsBody
+}
+object transaction {
+    _id = autoincrement
+    _id_card
+    date
+    amount
+}
+
+profile --|> phone : 1 : n
+phone --|> card : 1 : n
+card --|> body : 1 : n
+card --|> transaction : 1 : n
+
+@enduml

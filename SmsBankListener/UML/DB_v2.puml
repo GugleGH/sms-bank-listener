@@ -1,0 +1,69 @@
+@startuml
+
+object profile {
+    int _id = autoincrement
+    String visibleName
+}
+object bankAccount {
+    int _id = autoincrement
+    String name
+}
+object profile_bankAccount {
+    int _id = autoincrement
+    int _id_profile
+    int _id_bankAccount
+}
+
+object phone {
+    int _id = autoincrement
+    int _id_bank
+    String displayAddress
+    String originatingAddress
+}
+object card {
+    int _id = autoincrement
+    int _id_bankAccount
+    String cardNumber
+}
+object phone_card {
+    int _id = autoincrement
+    int _id_phone
+    int _id_card
+}
+
+object transaction {
+    int _id = autoincrement
+    int _id_card
+    String date
+    float amount
+    float balance
+    String description
+}
+
+object bank {
+    int _id = autoincrement
+    String name
+    String description
+}
+object regex {
+    int _id = autoincrement
+    int _id_bank
+    String regex
+}
+
+
+
+profile --|> profile_bankAccount : 1 : n
+bankAccount -up-|> profile_bankAccount : 1 : n
+bankAccount --|> card : 1 : n
+
+phone -right-|> phone_card : 1 : n
+card -left-|> phone_card : 1 : n
+
+card --|> transaction : 1 : n
+
+phone -down-|> regex : 1 : n
+phone --|> bank : 1 : 1
+regex -left-|> bank : 1 : 1
+
+@enduml
