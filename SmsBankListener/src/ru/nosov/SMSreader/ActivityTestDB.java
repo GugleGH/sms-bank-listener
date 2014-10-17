@@ -7,6 +7,7 @@ package ru.nosov.SMSreader;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -17,6 +18,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.Bank;
 import ru.nosov.SMSreader.db.Regex;
@@ -41,6 +47,7 @@ import ru.nosov.SMSreader.db.loaders.CursorLoaderCard;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderPhone;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderTransaction;
+import ru.nosov.SMSreader.receiver.SmsService;
 
 /**
  * Тестовая панель для БД.
@@ -62,7 +69,7 @@ import ru.nosov.SMSreader.db.loaders.CursorLoaderTransaction;
 public class ActivityTestDB extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     
     // Variables declaration
-    private final String LOG_TAG = "SMS_READER_TestDB";
+    private final String LOG_TAG = LOG_NAME + "TestDB";
     private TextView textViewTestDB;
     
     private ListView listViewPhones;
@@ -109,6 +116,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     
     private ProfileBankAccountImpl profileBankAccountImpl;
     private PhoneCardImpl phoneCardImpl;
+    
+    private Button buttonAdd;
     // End of variables declaration
     
     @Override
@@ -242,6 +251,13 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
         listViewBank.setAdapter(adapterBank);
         
         // ********************** Button **********************
+        buttonAdd = (Button) findViewById(R.id.bAddTestData);
+        buttonAdd.setOnClickListener( new View.OnClickListener() {
+
+            public void onClick(View v) {
+                buttonClick(v);
+            }
+        });
         buttonPhones.setOnClickListener( new View.OnClickListener() {
 
             public void onClick(View v) {
@@ -379,6 +395,9 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
                 break;
             case R.id.bTestDBBank:
                 testBank(Integer.valueOf(editTextBank.getText().toString()));
+                break;
+            case R.id.bAddTestData:
+                addData();
                 break;
             default:
         }
@@ -548,6 +567,24 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
         } else
             Log.d(LOG_TAG, "0 rows");
         phoneCardImpl.close();
+        
+        if (id < 0) return;
+        cardImpl.open();
+        
+        Cursor cCard = cardImpl.getCardsByIDPhone(id);
+        if (cCard != null) {
+            if (cCard.moveToFirst()) {
+                int idIndex = cCard.getColumnIndex(Card.COLUMN_ID);
+                int baIndex = cCard.getColumnIndex(Card.COLUMN_ID_BANK_ACCOUNT);
+                int cnIndex = cCard.getColumnIndex(Card.COLUMN_CARD_NUMBER);
+                
+                do {
+                    Log.d(LOG_TAG, "ID = " + cCard.getInt(idIndex) +
+                        ", " + Card.COLUMN_ID_BANK_ACCOUNT + " = " + cCard.getInt(baIndex) +
+                        ", " + Card.COLUMN_CARD_NUMBER + " = " + cCard.getString(cnIndex));
+                } while (cCard.moveToNext());
+            }
+        }
     }
     
     private void testPCByCard(int id) {
@@ -632,4 +669,79 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
         bankImpl.close();
     }
     
+    
+    private void addData() {
+        String[] sms_from = {
+/*1*/       "Raiffeisen",
+/*2*/       "Raiffeisen",
+/*3*/       "Raiffeisen",
+/*4*/       "Raiffeisen",
+/*5*/       "Raiffeisen",
+/*6*/       "Bank",
+/*7*/       "Bank",
+/*8*/       "Bank",
+/*9*/       "Bank",
+/*10*/      "Bank",
+/*11*/      "Bank",
+/*12*/      "Bank"
+        };
+        String[] sms_number = {
+/*1*/       "Raiffeisen",
+/*2*/       "Raiffeisen",
+/*3*/       "Raiffeisen",
+/*4*/       "Raiffeisen",
+/*5*/       "Raiffeisen",
+/*6*/       "Bank",
+/*7*/       "Bank",
+/*8*/       "Bank",
+/*9*/       "Bank",
+/*10*/      "Bank",
+/*11*/      "Bank",
+/*12*/      "Bank"
+        };
+        String[] sms_body = {
+/*1*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:396.70 RUR Data:10/10/2014; Dostupny Ostatok: 135983.86 RUR. Raiffeisenbank", 
+/*2*/       "Karta *9548; Provedena tranzakcija:LU/ITUNES.COM/ITUNES.COM/BILL; Summa:169.00 RUR Data:15/10/2014; Dostupny Ostatok: 98304.54 RUR. Raiffeisenbank", 
+/*3-*/      "Planovoe spisanie:35630.32 RUR. Balans scheta karty *9548 na 15/10/2014: 98304.54 RUR. Raiffeisenbank",
+/*4*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/PODRUZHKA 166; Summa:1371.39 RUR Data:15/10/2014; Dostupny Ostatok: 96933.15 RUR. Raiffeisenbank", 
+/*5*/       "Povedeno po schety 15/10/2014: - 35630.32 RUR. Balans scheta karty *9548 na 16/10/2014: 96933.15 RUR. Raiffeisenbank",
+/*6*/       "01.08.14 12:39:14 KAPTA 4860*6650 POPOLNENIE +   14871,39 RUR   / DOSTUPNO 127186,1 RUR",
+/*7*/       "09.08.14 15:10:07 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 45 MOSCOW RUS / DOSTUPNO 47186,1 RUR",
+/*8*/       "20.08.14 12:26:00 KAPTA 4860*6650 POPOLNENIE +   32184 RUR   / DOSTUPNO 79370,1 RUR",
+/*9*/       "01.09.14 13:07:38 KAPTA 4860*6650 POPOLNENIE +   104276,47 RUR   / DOSTUPNO 183646,57 RUR",
+/*10*/      "05.09.14 15:02:56 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 103646,57 RUR",
+/*11*/      "01.10.14 14:36:41 KAPTA 4860*6650 POPOLNENIE +   23577,91 RUR   / DOSTUPNO 127224,48 RUR",
+/*12*/      "07.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR"
+        };
+        String[] time = {
+/*1*/       "2014/10/10 15:12:56",
+/*2*/       "2014/10/15 07:49:39",
+/*3*/       "2014/10/15 09:06:32",
+/*4*/       "2014/10/15 14:38:24",
+/*5*/       "2014/10/16 09:08:07",
+/*6*/       "2014/08/01 12:40:52",
+/*7*/       "2014/08/09 03:10:31",
+/*8*/       "2014/08/20 12:28:55",
+/*9*/       "2014/09/01 01:38:54",
+/*10*/      "2014/09/05 03:03:27",
+/*11*/      "2014/10/01 03:21:41",
+/*12*/      "2014/10/07 03:06:15"
+        };
+        
+        for (int i=0; i<sms_from.length; i++) {
+            try {
+                Intent smsIntent = new Intent(this, SmsService.class);
+
+                smsIntent.putExtra(SmsService.SMS_DISPLAY_ADDRESS, sms_from[i]);
+                smsIntent.putExtra(SmsService.SMS_ORIGINATING_ADDRESS, sms_number[i]);
+                smsIntent.putExtra(SmsService.SMS_BODY, sms_body[i]);
+                Date d = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").parse(time[i]);
+                long t = d.getTime();
+                smsIntent.putExtra(SmsService.SMS_TIME_SERVICE_CENTRE, t);
+
+                this.startService(smsIntent);
+            } catch (ParseException ex) {
+            }
+        }
+    }
 }

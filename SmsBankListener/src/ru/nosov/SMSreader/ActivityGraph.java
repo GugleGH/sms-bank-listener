@@ -15,14 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
-import com.jjoe64.graphview.CustomLabelFormatter;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphView.LegendAlign;
-import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.GraphViewStyle;
-import com.jjoe64.graphview.LineGraphView;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +28,7 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.Profile;
@@ -44,6 +37,7 @@ import ru.nosov.SMSreader.db.impl.BankAccountImpl;
 import ru.nosov.SMSreader.db.impl.CardImpl;
 import ru.nosov.SMSreader.db.impl.ProfileImpl;
 import ru.nosov.SMSreader.db.impl.TransactionImpl;
+import ru.nosov.SMSreader.utils.Util;
 
 /**
  * График.
@@ -52,7 +46,7 @@ import ru.nosov.SMSreader.db.impl.TransactionImpl;
 public class ActivityGraph extends Activity {
     
     // Variables declaration
-    private final String LOG_TAG = "SMS_READER_ActivityGraph";
+    private final String LOG_TAG = LOG_NAME + "ActivityGraph";
     /** Основная разметка. */
     private LinearLayout layoutLinearGraph;
     /** Идентификатор профиля. */
@@ -61,6 +55,7 @@ public class ActivityGraph extends Activity {
     private XYMultipleSeriesRenderer mRenderer;
     private XYSeries series;
     private XYSeriesRenderer renderer;
+//    private int nextColor = Color.GREEN;
     // End of variables declaration
     
     @Override
@@ -234,71 +229,6 @@ public class ActivityGraph extends Activity {
         return transactions;
     }
     
-    private GraphView createGraphView(ArrayList<BankAccount> bas) {
-        GraphView graphView = new LineGraphView(this, getProfileName());
-        
-        for (BankAccount ba : bas) {
-            
-            ArrayList<Transaction> ts = getTransactionsByIDCard(getCardsByIDBankAccount(ba));
-            if (ts.size() < 1) continue;
-//            Log.d(LOG_TAG, ba.getName() + "; Кол-во точек " + ts.size());
-            
-            GraphViewData[] graphViewDatas = new GraphViewData[ts.size()];
-            for (int i=0; i<ts.size(); i++) {
-                Transaction t = ts.get(i);
-                GraphViewData graphViewData = new GraphViewData(
-                        t.getDateTime().getTime(), t.getBalace());
-                graphViewDatas[i] = graphViewData;
-            }
-            String desc = ba.getName() + " / " + ts.get(ts.size()-1).getBalace();
-            GraphViewSeries series = new GraphViewSeries(desc, null, graphViewDatas);
-            graphView.addSeries(series);
-        }
-        
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        CustomLabelFormatter labelFormatter = new CustomLabelFormatter() {
-
-            public String formatLabel(double d, boolean isValueX) {
-                if (isValueX) {
-                    String res = dateFormat.format(new Date((long)d));
-//                    Log.d(LOG_TAG, "isValueX " + String.valueOf((long)d) + "; "
-//                            + res);
-//                    return String.valueOf((int)d);
-                    return res;
-                } else {
-//                    BigDecimal x = new BigDecimal(d);
-//                    x = x.setScale(2, BigDecimal.ROUND_HALF_UP);
-//                    return String.valueOf(x.doubleValue());
-                    return String.valueOf((int)d);
-                }
-            }
-        };
-        graphView.setCustomLabelFormatter(labelFormatter);
-        
-//        // optional - set view port, start=2, size=10
-//        graphView.setViewPort(2, 10);
-        graphView.setScalable(true);
-        graphView.setShowLegend(true);
-        graphView.setLegendAlign(LegendAlign.BOTTOM);
-        graphView.setManualYMinBound(0);
-        //Style
-        float testSize = graphView.getGraphViewStyle().getTextSize();
-        graphView.getGraphViewStyle().setGridStyle(GraphViewStyle.GridStyle.BOTH);
-        graphView.getGraphViewStyle().setGridColor(Color.GREEN);
-        graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.YELLOW);
-        graphView.getGraphViewStyle().setVerticalLabelsColor(Color.YELLOW);
-        graphView.getGraphViewStyle().setTextSize(testSize/4);
-        graphView.getGraphViewStyle().setNumHorizontalLabels(5);
-        //graphView.getGraphViewStyle().setVerticalLabelsAlign(Paint.Align.LEFT);
-        //graphView.getGraphViewStyle().setVerticalLabelsWidth(50);
-        //graphView.getGraphViewStyle().setTextSize(getResources().getDimension(R.dimen.big));
-        //graphView.getGraphViewStyle().setNumHorizontalLabels(5);
-        //graphView.getGraphViewStyle().setNumVerticalLabels(4);
-        //graphView.getGraphViewStyle().setVerticalLabelsWidth(300);
-        
-        return graphView;
-    }
-    
     private GraphicalView createAchartEngine(ArrayList<BankAccount> bas) {
         mDataset = new XYMultipleSeriesDataset();
         mRenderer = new XYMultipleSeriesRenderer();
@@ -317,19 +247,23 @@ public class ActivityGraph extends Activity {
         mRenderer.setYAxisMin(0);
 //        mRenderer.setXLabels(0);
 //        mRenderer.setYLabels(0);
-        mRenderer.setAxisTitleTextSize(mRenderer.getAxisTitleTextSize()/2);
-        mRenderer.setLabelsTextSize(mRenderer.getLabelsTextSize()/2);
+        
+//        mRenderer.setAxisTitleTextSize(mRenderer.getAxisTitleTextSize()/2);
+//        mRenderer.setLabelsTextSize(mRenderer.getLabelsTextSize()/2);
+        
         mRenderer.setZoomButtonsVisible(true);
         
 //        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd\nhh:mm:ss");
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int nextColor = 0;
         for (BankAccount ba : bas) {
 //            series = new XYSeries("");
             series = new TimeSeries("");
             renderer = new XYSeriesRenderer();
-            float size = renderer.getAnnotationsTextSize();
-            renderer.setAnnotationsTextSize(size/2);
+//            float size = renderer.getAnnotationsTextSize();
+//            renderer.setAnnotationsTextSize(size/2);
             renderer.setAnnotationsTextAlign(Paint.Align.RIGHT);
+            renderer.setColor(Util.nextColor4Graph(nextColor++));
             
             ArrayList<Transaction> ts = getTransactionsByIDCard(getCardsByIDBankAccount(ba));
             if (ts.size() < 1) continue;
@@ -355,6 +289,9 @@ public class ActivityGraph extends Activity {
             
             mDataset.addSeries(series);
             mRenderer.addSeriesRenderer(renderer);
+            
+//            Log.d(LOG_TAG, "Color=" + nextColor);
+//            nextColor = Util.getColor4Graph(nextColor);
         }
         
 //        GraphicalView graphicalView = ChartFactory.getLineChartView(this, mDataset, mRenderer);

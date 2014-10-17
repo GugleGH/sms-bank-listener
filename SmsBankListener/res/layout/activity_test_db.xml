@@ -163,4 +163,11 @@ and open the template in the editor.
             android:inputType="number" />
     </LinearLayout>
     
+    <!-- ********************* BankName ************************ -->
+    <Button
+        android:id="@+id/bAddTestData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add data" />
+    
 </LinearLayout>

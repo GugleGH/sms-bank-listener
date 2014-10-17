@@ -47,7 +47,7 @@ public class PhoneCardImpl {
      */
     public Cursor getPCByIDPhone(int idPhone) {
         String[] fields = new String[] { PhoneCard.COLUMN_ID,
-                                         //PhoneCard.COLUMN_ID_PHONE,
+                                         PhoneCard.COLUMN_ID_PHONE,
                                          PhoneCard.COLUMN_ID_CARD
                                        };
         
@@ -65,8 +65,8 @@ public class PhoneCardImpl {
      */
     public Cursor getPCByIDCard(int idCard) {
         String[] fields = new String[] { PhoneCard.COLUMN_ID,
-                                         PhoneCard.COLUMN_ID_PHONE
-                                         //PhoneCard.COLUMN_ID_CARD
+                                         PhoneCard.COLUMN_ID_PHONE,
+                                         PhoneCard.COLUMN_ID_CARD
                                        };
         
         return database.query(PhoneCard.TABLE_NAME, 

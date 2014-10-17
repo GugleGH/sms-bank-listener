@@ -8,6 +8,8 @@ package ru.nosov.SMSreader.db.loaders;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.database.Cursor;
+import android.util.Log;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.impl.ProfileImpl;
 
 /**
@@ -17,6 +19,7 @@ import ru.nosov.SMSreader.db.impl.ProfileImpl;
 public class CursorLoaderProfile extends CursorLoader {
 
     // Variables declaration
+    private final String LOG_TAG = LOG_NAME + "CursorLoaderProfile";
     private ProfileImpl profileImpl;
     // End of variables declaration
     
@@ -27,6 +30,7 @@ public class CursorLoaderProfile extends CursorLoader {
     
     @Override
     public Cursor loadInBackground() {
-        return profileImpl.getAllProfiles();
+        Log.d(LOG_TAG, "loadInBackground");
+        return (profileImpl == null) ? null : profileImpl.getAllProfiles();
     }
 }

@@ -20,6 +20,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Profile;
+import ru.nosov.SMSreader.db.adapters.AdapterProfile4Main;
 import ru.nosov.SMSreader.db.impl.ProfileImpl;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
 
@@ -31,7 +32,8 @@ import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
 public class ActivityMain extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     
     // Variables declaration
-    public static final String LOG_TAG = "SMS_READER_ActivityMain";
+    public static final String LOG_NAME = "Sms_Bank_listener_";
+    public static final String LOG_TAG = LOG_NAME + "ActivityMain";
     /** Основная разметка. */
     private LinearLayout layoutLinear;
     /** Список профилей. */
@@ -54,14 +56,17 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
         
 //        layoutLinear = (LinearLayout) findViewById(R.id.layoutLinear);
         listViewProfiles = (ListView) findViewById(R.id.listViewMainProfiles);
-        profileImpl = new ProfileImpl(this);
         buttonProfileList = (Button) findViewById(R.id.buttonProfileList);
         buttonTestDB = (Button) findViewById(R.id.buttonTestBD);
+        profileImpl = new ProfileImpl(this);
         
         listViewProfiles.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         String[] from = new String[] { Profile.COLUMN_VISIBLE_NAME };
-        int[] to = new int[] { R.id.buttonGraph };
-        adapterProfile = new SimpleCursorAdapter( this, 
+        int[] to = new int[] { R.id.profileName };
+//        adapterProfile = new SimpleCursorAdapter( this, 
+//                                                  R.layout.list_profiles4main, 
+//                                                  null, from, to, 0);
+        adapterProfile = new AdapterProfile4Main(this, 
                                                   R.layout.list_profiles4main, 
                                                   null, from, to, 0);
         listViewProfiles.setAdapter(adapterProfile);

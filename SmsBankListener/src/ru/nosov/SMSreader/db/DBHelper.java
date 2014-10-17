@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.receiver.TypeBank;
 
 /**
@@ -20,7 +21,7 @@ import ru.nosov.SMSreader.receiver.TypeBank;
 public class DBHelper extends SQLiteOpenHelper {
     
     // Variables declaration
-    private final String LOG_TAG = "SMS_READER_DBHelper";
+    private final String LOG_TAG = LOG_NAME + "DBHelper";
     /** Идентификатор загрузчика профилей. */
     public static final int LOADER_ID_PROFILE = 1;
     /** Идентификатор загрузчика номеров. */
@@ -56,14 +57,17 @@ public class DBHelper extends SQLiteOpenHelper {
     /** Регулярное выражение номера карты формата 1234*1234. */
     private static String REGEX_CARD_2 = "((?:\\d{4,4})\\*(?:\\d{4,4}))";
     /** Регулярное выражение числа вида 1234.12 */
-    private static String REGEX_MANY = "((\\d+(?:\\.\\d{0,2})))";
+    private static String REGEX_MANY_TCHK = "((\\d+)|(?:\\d+(?:\\.\\d{0,2})))";
+    /** Регулярное выражение числа вида 1234,12 */
+    private static String REGEX_MANY_ZPT = "((\\d+)|(?:\\d+(?:\\,\\d{0,2})))";
     
     private static int idBankRaiffeisen = 1;
     private static int idBankTNB = 2;
     private static int idPhoneRaiffeisen = 1;
     private static int idPhoneTNB = 2;
-    private static int idRegexRaiffeisen = 1;
-    private static int idRegexTNB = 2;
+    private static int idRegexRaiffeisen1 = 1;
+    private static int idRegexRaiffeisen2 = 2;
+    private static int idRegexTNB = 3;
     private static int idProfileAll = 1;
     private static int idProfileRaiffeisen = 2;
     private static int idProfileTNB = 3;
@@ -116,7 +120,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        
+        switch (oldVersion) {
+            case 1:
+//                upgradeRegex1To2(db);
+//                Log.i(LOG_TAG, "Обновление БД с версии 1 на версию 2 прошло успешно.");
+                break;
+            default:
+        }
     }
     
     private void createTableProfileBankAccount(SQLiteDatabase db) {
@@ -203,23 +213,36 @@ public class DBHelper extends SQLiteOpenHelper {
             + Regex.COLUMN_ID_BANK + " integer NOT NULL, "
             + Regex.COLUMN_REGEX + " TEXT NOT NULL" + " );");
         
-        // Райффайзен
-        String regex = REGEX_SPASE + "(?:Karta " + REGEX_CARD_1 + ";)" + REGEX_ANY
-                                     + "(?: Summa\\:" + REGEX_MANY + " RUR)"
+        // Райффайзен (оплата)
+        String regex = REGEX_SPASE + "(?:Kart. " + REGEX_CARD_1 + ";)" + REGEX_ANY
+                                     + "(?: Summa\\:" + REGEX_MANY_TCHK + " RUR)"
                                      + "(?: Data\\:" + REGEX_DDMMYYYY_SLASH + ";)"
-                                     + "(?: Dostupny Ostatok\\: " + REGEX_MANY + " RUR)"
+                                     + "(?: Dostupny Ostatok\\: " + REGEX_MANY_TCHK + " RUR)"
                                      + REGEX_ANY;
         ContentValues cv = new ContentValues();
-        cv.put(Regex.COLUMN_ID, idRegexRaiffeisen);
+        cv.put(Regex.COLUMN_ID, idRegexRaiffeisen1);
+        cv.put(Regex.COLUMN_ID_BANK, idBankRaiffeisen);
+        cv.put(Regex.COLUMN_REGEX, regex);
+        db.insert(Regex.TABLE_NAME, null, cv);
+        // Райффайзен (плановое списание - это напоминание)
+        // Райффайзен (проведено по счету - снятие денег)
+        regex = REGEX_ANY + "(?: " + REGEX_MANY_TCHK + " RUR)"
+                                     + REGEX_ANY
+                                     + "(?:kart. " + REGEX_CARD_1 + ")"
+                                     + "(?: na " + REGEX_DDMMYYYY_SLASH + ":)"
+                                     + "(?: " + REGEX_MANY_TCHK + " RUR)"
+                                     + REGEX_ANY;
+        cv = new ContentValues();
+        cv.put(Regex.COLUMN_ID, idRegexRaiffeisen2);
         cv.put(Regex.COLUMN_ID_BANK, idBankRaiffeisen);
         cv.put(Regex.COLUMN_REGEX, regex);
         db.insert(Regex.TABLE_NAME, null, cv);
         
         // Транснациональный
         regex = REGEX_SPASE + REGEX_DDMMYY_POINT + " " + REGEX_HHMMSS
-                                      + "(?: KARTA " + REGEX_CARD_1 + " )" + REGEX_ANY
-                                      + "(?: " + REGEX_MANY + " RUR)" + REGEX_ANY
-                                      + "(?: DOSTUPNO " + REGEX_MANY + " RUR)";
+                                      + "(?: KAPTA " + REGEX_CARD_2 + " )" + REGEX_ANY
+                                      + "(?: " + REGEX_MANY_ZPT + " RUR)" + REGEX_ANY
+                                      + "(?:DOSTUPNO " + REGEX_MANY_ZPT + " RUR)";
         cv = new ContentValues();
         cv.put(Regex.COLUMN_ID, idRegexTNB);
         cv.put(Regex.COLUMN_ID_BANK, idBankTNB);
@@ -236,6 +259,10 @@ public class DBHelper extends SQLiteOpenHelper {
             + Transaction.COLUMN_AMOUNT + " REAL NOT NULL, "
             + Transaction.COLUMN_BALANCE + " REAL NOT NULL" + " );");
     }
+    
+    /* ---------- ---------- ---------- ---------- ---------- */
+    
+    
     
     /* ---------- ---------- ---------- ---------- ---------- */
     
@@ -342,38 +369,38 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     
     private void myTransaction(SQLiteDatabase db) {
-        // Райффайзен
-        ContentValues cv = new ContentValues();
-        cv.put(Transaction.COLUMN_ID_CARD, idCard2643);
-        cv.put(Transaction.COLUMN_DATE, "2014-10-10 15:13:00");
-        cv.put(Transaction.COLUMN_AMOUNT, "396.70");
-        cv.put(Transaction.COLUMN_BALANCE, "135983.86");
-        db.insert(Transaction.TABLE_NAME, null, cv);
-        
-        // Транснациональный
-        cv = new ContentValues();
-        cv.put(Transaction.COLUMN_ID_CARD, idCard4860_6650);
-        cv.put(Transaction.COLUMN_DATE, "2014-10-01 14:36:41");
-        cv.put(Transaction.COLUMN_AMOUNT, "23577.91");
-        cv.put(Transaction.COLUMN_BALANCE, "127224.48");
-        db.insert(Transaction.TABLE_NAME, null, cv);
-        cv = new ContentValues();
-        cv.put(Transaction.COLUMN_ID_CARD, idCard4860_6650);
-        cv.put(Transaction.COLUMN_DATE, "2014-10-07 15:05:48");
-        cv.put(Transaction.COLUMN_AMOUNT, "80000.00");
-        cv.put(Transaction.COLUMN_BALANCE, "47224.48");
-        db.insert(Transaction.TABLE_NAME, null, cv);
+//        // Райффайзен
+//        ContentValues cv = new ContentValues();
+//        cv.put(Transaction.COLUMN_ID_CARD, idCard2643);
+//        cv.put(Transaction.COLUMN_DATE, "2014-10-10 15:13:00");
+//        cv.put(Transaction.COLUMN_AMOUNT, "396.70");
+//        cv.put(Transaction.COLUMN_BALANCE, "135983.86");
+//        db.insert(Transaction.TABLE_NAME, null, cv);
+//        
+//        // Транснациональный
+//        cv = new ContentValues();
+//        cv.put(Transaction.COLUMN_ID_CARD, idCard4860_6650);
+//        cv.put(Transaction.COLUMN_DATE, "2014-10-01 14:36:41");
+//        cv.put(Transaction.COLUMN_AMOUNT, "23577.91");
+//        cv.put(Transaction.COLUMN_BALANCE, "127224.48");
+//        db.insert(Transaction.TABLE_NAME, null, cv);
+//        cv = new ContentValues();
+//        cv.put(Transaction.COLUMN_ID_CARD, idCard4860_6650);
+//        cv.put(Transaction.COLUMN_DATE, "2014-10-07 15:05:48");
+//        cv.put(Transaction.COLUMN_AMOUNT, "80000.00");
+//        cv.put(Transaction.COLUMN_BALANCE, "47224.48");
+//        db.insert(Transaction.TABLE_NAME, null, cv);
     }
     
     /* ---------- ---------- ---------- ---------- ---------- */
     
     private void testData(SQLiteDatabase db) {
-        int p = 4;
-        int ba = 3;
-        int ph1 = 3;
-        int ph2 = 4;
-        int c1 = 4;
-        int c2 = 5;
+        int p = idProfileTNB+1;
+        int ba = idBankAccountTNB + 1;
+        int ph1 = idPhoneTNB + 1;
+        int ph2 = idPhoneTNB + 2;
+        int c1 = idCard4860_6650 + 1;
+        int c2 = idCard4860_6650 + 2;
         ContentValues cv = new ContentValues();
         // Profile
         cv.put(Profile.COLUMN_ID, p);
@@ -386,6 +413,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert(BankAccount.TABLE_NAME, null, cv);
         // Profile + BankAccount
         cv = new ContentValues();
+        cv.put(ProfileBankAccount.COLUMN_ID, idPBA4+1);
         cv.put(ProfileBankAccount.COLUMN_ID_PROFILE, p);
         cv.put(ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT, ba);
         db.insert(ProfileBankAccount.TABLE_NAME, null, cv);
@@ -417,30 +445,34 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert(Card.TABLE_NAME, null, cv);
         // Phone + Card
         cv = new ContentValues();
+        cv.put(PhoneCard.COLUMN_ID, idPC3 + 1);
         cv.put(PhoneCard.COLUMN_ID_PHONE, ph1);
         cv.put(PhoneCard.COLUMN_ID_CARD, c1);
         db.insert(PhoneCard.TABLE_NAME, null, cv);
         cv = new ContentValues();
+        cv.put(PhoneCard.COLUMN_ID, idPC3 + 2);
         cv.put(PhoneCard.COLUMN_ID_PHONE, ph2);
         cv.put(PhoneCard.COLUMN_ID_CARD, c2);
         db.insert(PhoneCard.TABLE_NAME, null, cv);
         // Regex
         String regexT1 = REGEX_SPASE + REGEX_DDMMYY_POINT + " " + REGEX_HHMMSS
                 + "(?: KARTA ((?:\\d{4,4})\\+(?:\\d{4,4})) )"
-                + REGEX_ANY + "(?: " + REGEX_MANY + " RUR)" + REGEX_ANY
-                + "(?: DOSTUPNO " + REGEX_MANY + " RUR)";
+                + REGEX_ANY + "(?: " + REGEX_MANY_TCHK + " RUR)" + REGEX_ANY
+                + "(?: DOSTUPNO " + REGEX_MANY_TCHK + " RUR)";
         
         cv = new ContentValues();
+        cv.put(Regex.COLUMN_ID, idRegexTNB+1);
         cv.put(Regex.COLUMN_ID_BANK, idBankTNB);
         cv.put(Regex.COLUMN_REGEX, regexT1);
         db.insert(Regex.TABLE_NAME, null, cv);
         String regexT2 = REGEX_SPASE + "(?:Karta (\\+(?:\\d{4,4}));)" + REGEX_ANY
-                                     + "(?: Summa\\:" + REGEX_MANY + " RUR)"
+                                     + "(?: Summa\\:" + REGEX_MANY_TCHK + " RUR)"
                                      + "(?: Data\\:" + REGEX_DDMMYYYY_SLASH + ";)"
-                                     + "(?: Dostupny Ostatok\\: " + REGEX_MANY + " RUR)"
+                                     + "(?: Dostupny Ostatok\\: " + REGEX_MANY_TCHK + " RUR)"
                                      + REGEX_ANY;
         
         cv = new ContentValues();
+        cv.put(Regex.COLUMN_ID, idRegexTNB+2);
         cv.put(Regex.COLUMN_ID_BANK, idBankRaiffeisen);
         cv.put(Regex.COLUMN_REGEX, regexT2);
         db.insert(Regex.TABLE_NAME, null, cv);

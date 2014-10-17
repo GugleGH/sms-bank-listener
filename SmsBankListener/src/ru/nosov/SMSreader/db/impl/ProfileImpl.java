@@ -9,8 +9,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Profile;
+import ru.nosov.SMSreader.db.ProfileBankAccount;
 
 /**
  * Профиль.
@@ -37,6 +39,40 @@ public class ProfileImpl {
         return database.query(Profile.TABLE_NAME, 
                 null, null, null, null, null, null);
     }
+    
+//    public Cursor getAllProfiles1() {
+//        String p = Profile.TABLE_NAME;
+//        String ba = BankAccount.TABLE_NAME;
+//        String pba = ProfileBankAccount.TABLE_NAME;
+//        String[] fields = new String[] { p + "." + Profile.COLUMN_VISIBLE_NAME,
+//                                         ba + "." + BankAccount.COLUMN_ID,
+//                                         ba + "." + BankAccount.COLUMN_NAME,
+//                                         pba + "." + ProfileBankAccount.COLUMN_ID_PROFILE
+//                                       };
+////        String sqlQuery = "SELECT *" + 
+////                " FROM ( " + ba +
+////                    " INNER JOIN " + pba +
+////                    " ON " + ba + "." + BankAccount.COLUMN_ID + " = " + 
+////                            pba + "." + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + " ) " +
+////                " WHERE " + pba + "." + ProfileBankAccount.COLUMN_ID_PROFILE + "=" + " ?";
+//        
+////        String sqlQueryT = "SELECT bankAccount._id, bankAccount.name, profiles_bankAccount._id_profiles " + 
+////                " FROM ( bankAccount" +
+////                    " INNER JOIN profiles_bankAccount " +
+////                    " ON bankAccount._id = profiles_bankAccount._id_bankAccount )" +
+////                " WHERE profiles_bankAccount._id_profiles =" + " ?";
+//        
+//        String table = ba +
+//                    " INNER JOIN " + pba + " ON " + 
+//                ba + "." + BankAccount.COLUMN_ID + " = " + 
+//                pba + "." + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT;
+//        
+//        return database.query( table, 
+//                               fields,
+//                               ProfileBankAccount.COLUMN_ID_PROFILE + "=?",
+//                               new String[] { String.valueOf(id_profile) },
+//                               null, null, null, null);
+//    }
     
     /**
      * Возвращает профиль по ID.

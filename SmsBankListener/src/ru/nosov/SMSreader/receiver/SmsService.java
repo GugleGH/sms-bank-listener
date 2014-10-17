@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.Regex;
 import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.Phone;
@@ -32,11 +33,12 @@ import ru.nosov.SMSreader.db.impl.TransactionImpl;
 public class SmsService extends Service {
     
     // Variables declaration
-    private final String LOG_TAG = "SMS_READER_SmsService";
+    private final String LOG_TAG = LOG_NAME + "SmsService";
     
     public static final String SMS_DISPLAY_ADDRESS = "displayAddress";
     public static final String SMS_ORIGINATING_ADDRESS = "originatingAddress";
     public static final String SMS_BODY = "body";
+    public static final String SMS_TIME_SERVICE_CENTRE = "time";
     // End of variables declaration
     
     @Override
@@ -51,11 +53,12 @@ public class SmsService extends Service {
   
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        Log.d(LOG_TAG, "Start My Service");
-        String sms_from = intent.getExtras().getString(SmsService.SMS_DISPLAY_ADDRESS);
-        String sms_number = intent.getExtras().getString(SmsService.SMS_ORIGINATING_ADDRESS);
+        Log.d(LOG_TAG, "----- Start My Service");
+        String sms_from = intent.getExtras().getString(SmsService.SMS_DISPLAY_ADDRESS, null);
+        String sms_number = intent.getExtras().getString(SmsService.SMS_ORIGINATING_ADDRESS, null);
         String originatingAddress = getOriginatingAddress(sms_from, sms_number);
-        String sms_body = intent.getExtras().getString(SmsService.SMS_BODY);
+        String sms_body = intent.getExtras().getString(SmsService.SMS_BODY, null);
+        long time = intent.getExtras().getLong(SmsService.SMS_TIME_SERVICE_CENTRE, 0);
         
         if ( (originatingAddress == null) ||
                 (originatingAddress.equals("")) ||
@@ -63,23 +66,26 @@ public class SmsService extends Service {
                 (sms_body.equals("")) )
             return super.onStartCommand(intent, flags, startId);
         
-//        Log.d(LOG_TAG, "----- New Message -----");
-//        Log.d(LOG_TAG, "Sms address " + originatingAddress + 
-//                        "; B=" +sms_body);
+        Log.d(LOG_TAG, sms_body);
         
         ArrayList<Phone> phones = getPhonesByAddress(sms_number);
         if (phones != null) {
-//            Log.d(LOG_TAG, "Phones size = " + phones.size());
             for (Phone phone : phones) {
-//                Log.d(LOG_TAG, "Phone ID=" + phone.getId() + 
-//                        "; OA=" + phone.getOriginatingAddress() + 
-//                        "; B=" + phone.getIdBank());
+                Log.d(LOG_TAG, "Phone ID=" + phone.getId() + 
+                        "; OA=" + phone.getOriginatingAddress() + 
+                        "; B=" + phone.getIdBank());
                 ArrayList<Regex> regexs = getRegexByBank(phone.getIdBank());
-//                Log.d(LOG_TAG, "Regex size=" + regexs.size());
+                if (regexs != null)
+                    Log.d(LOG_TAG, "Regex size=" + regexs.size());
+                
                 SmsBody smsBody = getBodyByRegex(regexs, sms_body);
-//                if (smsBody != null) 
-//                    Log.d(LOG_TAG, "getBodyByRegex=" + smsBody.getCard());
-                smsBody = transformDateByBank(smsBody, phone.getIdBank());
+                if (smsBody != null)
+                    Log.d(LOG_TAG, "smsBody: C="+smsBody.getCard()+"; B="+smsBody.getBalance());
+                
+                smsBody = transformDateByBank(smsBody, phone.getIdBank(), time);
+                if (smsBody == null)
+                    Log.d(LOG_TAG, "Не смог привести время");
+                
                 ArrayList<Card> cards = getCardsBySMS(phone, smsBody);
 //                if (cards != null) 
 //                    Log.d(LOG_TAG, "Card size=" + cards.size());
@@ -176,7 +182,7 @@ public class SmsService extends Service {
      */
     private SmsBody getBodyByRegex(ArrayList<Regex> regexs, String body) {
         if (regexs == null) return null;
-        
+        SmsBody sms;
         for (Regex regex : regexs) {
             Pattern pattern = Pattern.compile(regex.getRegex());
             if (pattern.matcher(body).matches()) {
@@ -184,12 +190,17 @@ public class SmsService extends Service {
 //                matcher.find();
                 
                 TypeBank tb = TypeBank.getTypeModuleByID(regex.getIdBank());
-//                Log.d(LOG_TAG, "TypeBank - " + tb.getDescription());
                 switch (tb) {
                     case RAIFFEISEN:
-                        return createSmsBodyByRAIFFEISEN(matcher);
+                        Log.d(LOG_TAG, "RAIFFEISEN=" + regex.getRegex());
+                        sms = createSmsBodyByRAIFFEISEN(matcher);
+                        if (sms == null) break;
+                        else return sms;
                     case TNB:
-                        return createSmsBodyByTNB(matcher);
+//                        Log.d(LOG_TAG, "TNB=" + regex.getRegex());
+                        sms = createSmsBodyByTNB(matcher);
+                        if (sms == null) break;
+                        else return sms;
                     default:
                         return null;
                 }
@@ -207,25 +218,39 @@ public class SmsService extends Service {
         matcher.find();
         SmsBody smsBody = new SmsBody();
         try {
-            float amount = Float.valueOf(matcher.group(2));
+            String g1 = matcher.group(1);
+            if (g1 != null) {
+                if (g1.startsWith("*")) smsBody.setCard(g1);
+                else smsBody.setAmount(Float.valueOf(g1));
+            }
+            String g2 = matcher.group(2);
+            if (g2 != null){
+                if (g2.startsWith("*")) smsBody.setCard(g2);
+                else smsBody.setAmount(Float.valueOf(g2));
+            }
+            String g3 = matcher.group(3);
+            if (g3 != null){
+                if (g3.startsWith("*")) smsBody.setCard(g3);
+                else smsBody.setAmount(Float.valueOf(g3));
+            }
             float balance = Float.valueOf(matcher.group(5));
             smsBody.setDate(matcher.group(4));
             smsBody.setTime("00:00:00");
-            smsBody.setCard(matcher.group(1));
-            smsBody.setAmount(amount);
+            
             smsBody.setBalance(balance);
 //            Log.d(LOG_TAG, "SmsBODY: C=" + matcher.group(1)
 //                    + "; A" + matcher.group(2)
 //                    + "; A" + matcher.group(3)
 //                    + "; D=" + matcher.group(4)
 //                    + "; B=" + matcher.group(5));
-//            smsBody.setCard(matcher.group(1));      // Номер карты
+//            smsBody.setCard(matcher.group(1));      // Номер карты (Сумма транзакции)
 //            smsBody.setAmount(matcher.group(2));    // Сумма транзакции
-//            //String amount = matcher.group(3);     // Сумма транзакции
+//            //String amount = matcher.group(3);     // Сумма транзакции (Номер карты)
 //            smsBody.setDate(matcher.group(4));      // DD/MM/YYYY
 //            smsBody.setBalance(matcher.group(5));   // Доступно
             return smsBody;
         } catch (NumberFormatException ex) {
+            Log.e(LOG_TAG, "Не смог привести числа у RAIFFEISEN.");
             return null;
         }
     }
@@ -239,8 +264,8 @@ public class SmsService extends Service {
         matcher.find();
         SmsBody smsBody = new SmsBody();
         try {
-            float amount = Float.valueOf(matcher.group(4));
-            float balance = Float.valueOf(matcher.group(6));
+            float amount = Float.valueOf(matcher.group(4).replace(",", "."));
+            float balance = Float.valueOf(matcher.group(6).replace(",", "."));
             smsBody.setDate(matcher.group(1));
             smsBody.setTime(matcher.group(2));
             smsBody.setCard(matcher.group(3));
@@ -259,6 +284,7 @@ public class SmsService extends Service {
 //            smsBody.setBalance(matcher.group(6));   // Доступно
             return smsBody;
         } catch (NumberFormatException ex) {
+            Log.e(LOG_TAG, "Не смог привести числа у TNB.");
             return null;
         }
     }
@@ -283,18 +309,20 @@ public class SmsService extends Service {
                 int idIndex = cCard.getColumnIndex(Card.COLUMN_ID);
                 int baIndex = cCard.getColumnIndex(Card.COLUMN_ID_BANK_ACCOUNT);
                 int cnIndex = cCard.getColumnIndex(Card.COLUMN_CARD_NUMBER);
-
-                Card c = new Card();
-                String cardNumber = cCard.getString(cnIndex);
-//                Log.d(LOG_TAG, "cardNumber/smsCard " + cardNumber +
-//                                "/" + smsBody.getCard());
-                if (cardNumber.equals(smsBody.getCard())){
-                    c.setId(cCard.getInt(idIndex));
-                    c.setIdBankAccount(cCard.getInt(baIndex));
-                    c.setCardNumber(cardNumber);
-                    cards.add(c);
-//                    Log.d(LOG_TAG, Card.TABLE_NAME + " - " + c.getCardNumber());
-                }
+                
+                do {
+                    String cardNumber = cCard.getString(cnIndex);
+                    Log.d(LOG_TAG, "cardNumber/smsCard " + cardNumber +
+                                    "/" + smsBody.getCard());
+                    if (cardNumber.equals(smsBody.getCard())){
+                        Card c = new Card();
+                        c.setId(cCard.getInt(idIndex));
+                        c.setIdBankAccount(cCard.getInt(baIndex));
+                        c.setCardNumber(cardNumber);
+                        cards.add(c);
+                        Log.d(LOG_TAG, Card.TABLE_NAME + " - " + c.getCardNumber());
+                    }
+                } while (cCard.moveToNext());
             }
         }
         cardImpl.close();
@@ -321,9 +349,9 @@ public class SmsService extends Service {
             t.setAmount(smsBody.getAmount());
             t.setBalace(smsBody.getBalance());
             transactionImpl.addTransaction(t);
-//            Log.d(LOG_TAG, Transaction.TABLE_NAME + " add: "
-//                    + "C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
-//                    "; A=" + t.getAmount() + "; B="+ t.getBalace() + ";");
+            Log.i(LOG_TAG, Transaction.TABLE_NAME + " add: "
+                    + "C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
+                    "; A=" + t.getAmount() + "; B="+ t.getBalace() + ";");
         }
         
         transactionImpl.close();
@@ -335,18 +363,30 @@ public class SmsService extends Service {
      * @param typeBank тип банка
      * @return  тело сообщения
      */
-    private SmsBody transformDateByBank(SmsBody smsBody, int typeBank) {
+    private SmsBody transformDateByBank(SmsBody smsBody, int typeBank, long time) {
         if (smsBody == null) return null;
         TypeBank tb = TypeBank.getTypeModuleByID(typeBank);
         switch (tb) {
             case RAIFFEISEN:
                 String[] dateRF = smsBody.getDate().split("\\/");
                 if (dateRF.length != 3) return null;
+                if (time != 0) smsBody.setTime(new SimpleDateFormat("hh:mm:ss").format(time)); 
                 Calendar cRF = new GregorianCalendar(
                                                 Integer.valueOf(dateRF[2]), 
                                                 Integer.valueOf(dateRF[1]), 
                                                 Integer.valueOf(dateRF[0]));
                 smsBody.setDateTime(cRF.getTime());
+                String[] timeRF = smsBody.getTime().split("\\:");
+                if (timeRF.length != 3) return smsBody;
+                cRF = new GregorianCalendar(
+                                                Integer.valueOf(dateRF[2]), 
+                                                Integer.valueOf(dateRF[1]), 
+                                                Integer.valueOf(dateRF[0]),
+                                                Integer.valueOf(timeRF[0]), 
+                                                Integer.valueOf(timeRF[1]), 
+                                                Integer.valueOf(timeRF[2]));
+                smsBody.setDateTime(cRF.getTime());
+                
                 return smsBody;
             case TNB:
                 String[] dateTNB = smsBody.getDate().split("\\.");

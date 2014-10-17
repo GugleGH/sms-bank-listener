@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsMessage;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 
 /**
  * Принимаем входящее сообщение.
@@ -18,7 +19,7 @@ public class SMSMonitor extends BroadcastReceiver {
     
     // Variables declaration
     private static final String ACTION = "android.provider.Telephony.SMS_RECEIVED";
-    private final String LOG_TAG = "SMS_READER_SMSMonitor";
+    private final String LOG_TAG = LOG_NAME + "SMSMonitor";
     // End of variables declaration
     
     public void onReceive(Context context, Intent intent) {
@@ -42,6 +43,7 @@ public class SMSMonitor extends BroadcastReceiver {
             // предотвратить дальнейшую обработку сообщения другими приложениями.
             String sms_from = messages[0].getDisplayOriginatingAddress();
             String sms_number = messages[0].getOriginatingAddress();
+            Long time = messages[0].getTimestampMillis();
             StringBuilder bodyText = new StringBuilder();
             for (int i = 0; i < messages.length; i++) {
                 bodyText.append(messages[i].getMessageBody());
@@ -51,6 +53,7 @@ public class SMSMonitor extends BroadcastReceiver {
             smsIntent.putExtra(SmsService.SMS_DISPLAY_ADDRESS, sms_from);
             smsIntent.putExtra(SmsService.SMS_ORIGINATING_ADDRESS, sms_number);
             smsIntent.putExtra(SmsService.SMS_BODY, sms_body);
+            smsIntent.putExtra(SmsService.SMS_TIME_SERVICE_CENTRE, time);
             
             context.startService(smsIntent);
             abortBroadcast();
