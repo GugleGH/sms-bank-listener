@@ -683,7 +683,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*9*/       "Bank",
 /*10*/      "Bank",
 /*11*/      "Bank",
-/*12*/      "Bank"
+/*12*/      "Bank",
+/*13*/      "Raiffeisen"
         };
         String[] sms_number = {
 /*1*/       "Raiffeisen",
@@ -697,7 +698,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*9*/       "Bank",
 /*10*/      "Bank",
 /*11*/      "Bank",
-/*12*/      "Bank"
+/*12*/      "Bank",
+/*13*/      "Raiffeisen"
         };
         String[] sms_body = {
 /*1*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:396.70 RUR Data:10/10/2014; Dostupny Ostatok: 135983.86 RUR. Raiffeisenbank", 
@@ -711,7 +713,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*9*/       "01.09.14 13:07:38 KAPTA 4860*6650 POPOLNENIE +   104276,47 RUR   / DOSTUPNO 183646,57 RUR",
 /*10*/      "05.09.14 15:02:56 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 103646,57 RUR",
 /*11*/      "01.10.14 14:36:41 KAPTA 4860*6650 POPOLNENIE +   23577,91 RUR   / DOSTUPNO 127224,48 RUR",
-/*12*/      "07.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR"
+/*12*/      "07.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR",
+/*13*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96311.07 RUR. Raiffeisenbank"
         };
         String[] time = {
 /*1*/       "2014/10/10 15:12:56",
@@ -725,7 +728,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*9*/       "2014/09/01 01:38:54",
 /*10*/      "2014/09/05 03:03:27",
 /*11*/      "2014/10/01 03:21:41",
-/*12*/      "2014/10/07 03:06:15"
+/*12*/      "2014/10/07 03:06:15",
+/*13*/      "2014/10/16 16:09:32"
         };
         
         for (int i=0; i<sms_from.length; i++) {

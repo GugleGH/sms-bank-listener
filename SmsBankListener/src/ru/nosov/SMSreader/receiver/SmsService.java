@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
@@ -39,6 +41,8 @@ public class SmsService extends Service {
     public static final String SMS_ORIGINATING_ADDRESS = "originatingAddress";
     public static final String SMS_BODY = "body";
     public static final String SMS_TIME_SERVICE_CENTRE = "time";
+    
+    private ExecutorService executor;
     // End of variables declaration
     
     @Override
@@ -49,6 +53,7 @@ public class SmsService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        executor = Executors.newFixedThreadPool(3);
     }
   
     @Override
