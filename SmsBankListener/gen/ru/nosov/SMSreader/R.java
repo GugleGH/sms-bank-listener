@@ -21,8 +21,7 @@ public final class R {
     }
     public static final class id {
         public static final int action_aboute=0x7f060032;
-        public static final int action_main=0x7f060033;
-        public static final int action_profiles_list=0x7f060030;
+        public static final int action_main=0x7f060030;
         public static final int action_settings=0x7f060031;
         public static final int bAddTestData=0x7f060023;
         public static final int bTestDBBank=0x7f060021;
@@ -34,10 +33,10 @@ public final class R {
         public static final int bTestDBTransaction=0x7f06001b;
         public static final int bankAccounts=0x7f060027;
         public static final int buttonAdd=0x7f06000a;
+        public static final int buttonBilling=0x7f060004;
         public static final int buttonDelete=0x7f06000c;
         public static final int buttonDropDB=0x7f060006;
         public static final int buttonEdit=0x7f06000b;
-        public static final int buttonProfileList=0x7f060004;
         public static final int buttonTestBD=0x7f060005;
         public static final int etTestDBBank=0x7f060022;
         public static final int etTestDBBankAccount=0x7f060013;
@@ -85,20 +84,46 @@ public final class R {
     public static final class menu {
         public static final int menu_graph=0x7f050000;
         public static final int menu_main=0x7f050001;
-        public static final int menu_profiles_list=0x7f050002;
     }
     public static final class string {
-        public static final int action_aboute=0x7f040008;
-        public static final int action_main=0x7f040005;
-        public static final int action_profiles_list=0x7f040007;
-        public static final int action_settings=0x7f040006;
         public static final int app_graph=0x7f040001;
         public static final int app_name=0x7f040000;
         public static final int app_profiles_list=0x7f040002;
         public static final int app_test_db=0x7f040003;
-        /**  Buttons 
+        public static final int button_add_test_data=0x7f040015;
+        public static final int button_bankAccount=0x7f04000f;
+        public static final int button_bankName=0x7f040014;
+        /**  <string name="textView_"></string> 
+ EditText 
+<string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string> 
+ <string name="editText_"></string> 
+ Buttons 
          */
-        public static final int delete_record=0x7f040009;
+        public static final int button_billing=0x7f04000a;
+        public static final int button_brop_bd=0x7f04000c;
+        public static final int button_card=0x7f040011;
+        public static final int button_delete_record=0x7f04000d;
+        public static final int button_phone=0x7f040010;
+        public static final int button_profiles=0x7f04000e;
+        public static final int button_regex=0x7f040013;
+        public static final int button_test_bd=0x7f04000b;
+        public static final int button_transaction=0x7f040012;
         public static final int graph_menu_main=0x7f040004;
+        public static final int menu_aboute=0x7f040007;
+        /**  Menu 
+         */
+        public static final int menu_main=0x7f040005;
+        public static final int menu_settings=0x7f040006;
+        /**  <string name="menu_"></string> 
+ TextView 
+         */
+        public static final int textView_main=0x7f040008;
+        public static final int textView_test_bd=0x7f040009;
     }
 }

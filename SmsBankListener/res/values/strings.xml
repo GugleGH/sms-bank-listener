@@ -7,10 +7,40 @@
     
     <string name="graph_menu_main">Главная</string>
     
-    <string name="action_main">Main</string>
-    <string name="action_settings">Settings</string>
-    <string name="action_profiles_list">Profiles List</string>
-    <string name="action_aboute">About</string>
+    <!-- Menu -->
+    <string name="menu_main">Главная</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_aboute">О программе</string>
+    <!-- <string name="menu_"></string> -->
+    
+    <!-- TextView -->
+    <string name="textView_main">Hello, I am a TextView</string>
+    <string name="textView_test_bd">Test BD</string>
+    <!-- <string name="textView_"></string> -->
+    
+    <!-- EditText -->
+    <!--<string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string>
+    <string name="editText_"></string> -->
+    <!-- <string name="editText_"></string> -->
+    
     <!-- Buttons -->
-    <string name="delete_record">Удалить запись</string>
+    <string name="button_billing">Билинг</string>
+    <string name="button_test_bd">Тестовые данные</string>
+    <string name="button_brop_bd">Удалить БД</string>
+    <string name="button_delete_record">Удалить запись</string>
+    <string name="button_profiles">Профиль</string>
+    <string name="button_bankAccount">BankAccount</string>
+    <string name="button_phone">Телефон</string>
+    <string name="button_card">Карта</string>
+    <string name="button_transaction">Transaction</string>
+    <string name="button_regex">Regex</string>
+    <string name="button_bankName">Наименование банка</string>
+    <string name="button_add_test_data">Добавить данные</string>
+    <!-- <string name="button_"></string> -->
+    
 </resources>

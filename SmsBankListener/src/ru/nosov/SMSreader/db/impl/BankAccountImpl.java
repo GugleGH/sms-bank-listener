@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.ProfileBankAccount;
@@ -33,13 +34,38 @@ public class BankAccountImpl {
     }
     
     /**
-     * Возвращает все банковские счета в базе.
-     * @return список банковский счет
+     * Возвращает курсор всех банковских счетов в базе.
+     * @return курсор банковских счетов
      */
-    public Cursor getAllBankAccounts() {
+    public Cursor getCurcorAllBankAccounts() {
         Cursor cursor = database.query(BankAccount.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
+    }
+    
+    /**
+     * Возвращает все банковские счета в базе.
+     * @return список банковский счет
+     */
+    public ArrayList<BankAccount> getAllBankAccounts() {
+        ArrayList<BankAccount> accounts = new ArrayList<BankAccount>();
+        this.open();
+        
+        Cursor c = getCurcorAllBankAccounts();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
+            int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
+            
+            do {
+                BankAccount ba = new BankAccount();
+                ba.setId(c.getInt(idIndex));
+                ba.setName(c.getString(baIndex));
+                accounts.add(ba);
+            } while (c.moveToNext());
+        }
+
+        this.close();
+        return accounts;
     }
     
     /**
@@ -92,11 +118,11 @@ public class BankAccountImpl {
     }
     
     /**
-     * Возвращает список банковских счетов по идентификатору id_profile.
+     * Возвращает курсор списка банковских счетов по идентификатору id_profile.
      * @param id_profile идентификатор профиля
-     * @return список карт
+     * @return курсор списка карт
      */
-    public Cursor getBankAccountsByIDProfile(int id_profile) {
+    public Cursor getCursorBankAccountsByIDProfile(int id_profile) {
         String ba = BankAccount.TABLE_NAME;
         String pba = ProfileBankAccount.TABLE_NAME;
         String[] fields = new String[] { ba + "." + BankAccount.COLUMN_ID,
@@ -126,6 +152,33 @@ public class BankAccountImpl {
                                ProfileBankAccount.COLUMN_ID_PROFILE + "=?",
                                new String[] { String.valueOf(id_profile) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает список банковских счетов по идентификатору id_profile.
+     * @param id_profile идентификатор профиля
+     * @return список карт
+     */
+    public ArrayList<BankAccount> getBankAccountsByIDProfile(int id_profile) {
+        ArrayList<BankAccount> bankAccounts = new ArrayList<BankAccount>();
+        if (id_profile < 0) return bankAccounts;
+        
+        this.open();
+        Cursor c = getCursorBankAccountsByIDProfile(id_profile);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
+            int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
+            
+            do {
+                BankAccount ba = new BankAccount();
+                ba.setId(c.getInt(idIndex));
+                ba.setName(c.getString(baIndex));
+                bankAccounts.add(ba);
+            } while (c.moveToNext());
+        }
+
+        this.close();
+        return bankAccounts;
     }
     
     /**

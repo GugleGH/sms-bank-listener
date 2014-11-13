@@ -130,26 +130,9 @@ public class ActivityGraph extends Activity {
     private ArrayList<BankAccount> getBankAccountsByProfile() {
         if (idProfile < 0) return null;
         
-        ArrayList<BankAccount> bankAccounts = new ArrayList<BankAccount>();
-        
         BankAccountImpl bankAccountImpl = new BankAccountImpl(this);
-        bankAccountImpl.open();
-        Cursor c = bankAccountImpl.getBankAccountsByIDProfile(idProfile);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
-            int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
-            
-            do {
-                BankAccount ba = new BankAccount();
-                ba.setId(c.getInt(idIndex));
-                ba.setName(c.getString(baIndex));
-                bankAccounts.add(ba);
-            } while (c.moveToNext());
-        }
-
-        bankAccountImpl.close();
         
-        return bankAccounts;
+        return bankAccountImpl.getBankAccountsByIDProfile(idProfile);
     }
     
     /**
@@ -160,28 +143,9 @@ public class ActivityGraph extends Activity {
     private ArrayList<Card> getCardsByIDBankAccount(BankAccount account) {
         if (account == null) return null;
         
-        ArrayList<Card> cards = new ArrayList<Card>();
-        
         CardImpl cardImpl = new CardImpl(this);
-        cardImpl.open();
-        Cursor c = cardImpl.getCardsByIDBankAccount(account.getId());
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Card.COLUMN_ID);
-            int cnIndex = c.getColumnIndex(Card.COLUMN_CARD_NUMBER);
-            // TODO тут
-            do {
-                Card card = new Card();
-                card.setId(c.getInt(idIndex));
-//                card.setIdBankAccount(c.getInt(idpIndex));
-//                card.setId_bankAccount(account.getId());
-                card.setCardNumber(c.getString(cnIndex));
-                cards.add(card);
-            } while (c.moveToNext());
-        }
-
-        cardImpl.close();
         
-        return cards;
+        return  cardImpl.getCardsByIDBankAccount(account.getId());
     }
     
     /**
@@ -192,43 +156,48 @@ public class ActivityGraph extends Activity {
     private ArrayList<Transaction> getTransactionsByIDCard(ArrayList<Card> cards) {
         if ( (cards == null) || (cards.size() < 1) ) return null;
         
-        ArrayList<Transaction> transactions = new ArrayList<Transaction>();
-        
         TransactionImpl transactionsImpl = new TransactionImpl(this);
-        transactionsImpl.open();
+        ArrayList<Transaction> transactions = transactionsImpl.getTransactionsByIDCards(cards);
         
-        for (Card card : cards) {
-            Cursor c = transactionsImpl.getTransactionsByIDCard(card.getId());
-            if (c.moveToFirst()) {
-                int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
-                int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
-                int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
-                int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
-
-                do {
-                    try {
-                        Transaction tr = new Transaction();
-                        tr.setId(c.getInt(idIndex));
-                        tr.setDateSQL(c.getString(dIndex));
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                        tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
-                        tr.setAmount(c.getFloat(aIndex));
-                        tr.setBalace(c.getFloat(bIndex));
-                        transactions.add(tr);
-                    } catch (ParseException ex) {
-                        Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
-                    }
-                } while (c.moveToNext());
-            }
-        }
-
-        transactionsImpl.close();
+//        TransactionImpl transactionsImpl = new TransactionImpl(this);
+//        transactionsImpl.open();
+//        
+//        for (Card card : cards) {
+//            Cursor c = transactionsImpl.getCursorTransactionsByIDCard(card.getId());
+//            if (c.moveToFirst()) {
+//                int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
+//                int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
+//                int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
+//                int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+//
+//                do {
+//                    try {
+//                        Transaction tr = new Transaction();
+//                        tr.setId(c.getInt(idIndex));
+//                        tr.setDateSQL(c.getString(dIndex));
+//                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//                        tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
+//                        tr.setAmount(c.getFloat(aIndex));
+//                        tr.setBalace(c.getFloat(bIndex));
+//                        transactions.add(tr);
+//                    } catch (ParseException ex) {
+//                        Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
+//                    }
+//                } while (c.moveToNext());
+//            }
+//        }
+//        transactionsImpl.close();
         
         Collections.sort(transactions);
         
         return transactions;
     }
     
+    /**
+     * Построение графика для профиля.
+     * @param bas список аккаунтов у профиля
+     * @return график
+     */
     private GraphicalView createAchartEngine(ArrayList<BankAccount> bas) {
         mDataset = new XYMultipleSeriesDataset();
         mRenderer = new XYMultipleSeriesRenderer();

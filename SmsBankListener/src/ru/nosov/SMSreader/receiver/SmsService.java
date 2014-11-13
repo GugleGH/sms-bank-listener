@@ -68,8 +68,11 @@ public class SmsService extends Service {
         if ( (originatingAddress == null) ||
                 (originatingAddress.equals("")) ||
                 (sms_body == null) ||
-                (sms_body.equals("")) )
+                (sms_body.equals("")) ) {
+            
+            this.stopSelf();
             return super.onStartCommand(intent, flags, startId);
+        }
         
         Log.d(LOG_TAG, sms_body);
         
@@ -98,12 +101,14 @@ public class SmsService extends Service {
             }
         }
         
+        this.stopSelf();
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(LOG_TAG, "----- Stop My Service");
     }
     
     private String getOriginatingAddress(String sms_from, String sms_number) {
@@ -376,20 +381,27 @@ public class SmsService extends Service {
                 String[] dateRF = smsBody.getDate().split("\\/");
                 if (dateRF.length != 3) return null;
                 if (time != 0) smsBody.setTime(new SimpleDateFormat("hh:mm:ss").format(time)); 
-                Calendar cRF = new GregorianCalendar(
-                                                Integer.valueOf(dateRF[2]), 
-                                                Integer.valueOf(dateRF[1]), 
-                                                Integer.valueOf(dateRF[0]));
+                Calendar cRF = Calendar.getInstance();
+                cRF.set(Calendar.YEAR, Integer.valueOf(dateRF[2]));
+                cRF.set(Calendar.MONTH, Integer.valueOf(dateRF[1])-1);
+                cRF.set(Calendar.DATE, Integer.valueOf(dateRF[0]));
+//                Calendar cRF = new GregorianCalendar(
+//                                                Integer.valueOf(dateRF[2]), 
+//                                                Integer.valueOf(dateRF[1]), 
+//                                                Integer.valueOf(dateRF[0]));
                 smsBody.setDateTime(cRF.getTime());
                 String[] timeRF = smsBody.getTime().split("\\:");
                 if (timeRF.length != 3) return smsBody;
-                cRF = new GregorianCalendar(
-                                                Integer.valueOf(dateRF[2]), 
-                                                Integer.valueOf(dateRF[1]), 
-                                                Integer.valueOf(dateRF[0]),
-                                                Integer.valueOf(timeRF[0]), 
-                                                Integer.valueOf(timeRF[1]), 
-                                                Integer.valueOf(timeRF[2]));
+                cRF.set(Calendar.HOUR, Integer.valueOf(timeRF[0]));
+                cRF.set(Calendar.MINUTE, Integer.valueOf(timeRF[1]));
+                cRF.set(Calendar.SECOND, Integer.valueOf(timeRF[2]));
+//                cRF = new GregorianCalendar(
+//                                                Integer.valueOf(dateRF[2]), 
+//                                                Integer.valueOf(dateRF[1]), 
+//                                                Integer.valueOf(dateRF[0]),
+//                                                Integer.valueOf(timeRF[0]), 
+//                                                Integer.valueOf(timeRF[1]), 
+//                                                Integer.valueOf(timeRF[2]));
                 smsBody.setDateTime(cRF.getTime());
                 
                 return smsBody;
@@ -397,20 +409,32 @@ public class SmsService extends Service {
                 String[] dateTNB = smsBody.getDate().split("\\.");
                 if (dateTNB.length != 3) return null;
                 String yyyy = (dateTNB[2].length() == 2) ? "20"+dateTNB[2] : "2"+dateTNB[2];
-                Calendar cTNB = new GregorianCalendar(
-                                                Integer.valueOf(yyyy), 
-                                                Integer.valueOf(dateTNB[1]), 
-                                                Integer.valueOf(dateTNB[0]));
+                Calendar cTNB = Calendar.getInstance();
+                cTNB.set(Calendar.YEAR, Integer.valueOf(yyyy));
+                cTNB.set(Calendar.MONTH, Integer.valueOf(dateTNB[1])-1);
+                cTNB.set(Calendar.DATE, Integer.valueOf(dateTNB[0])-1);
+//                Calendar cTNB = new GregorianCalendar(
+//                                                Integer.valueOf(yyyy), 
+//                                                Integer.valueOf(dateTNB[1]), 
+//                                                Integer.valueOf(dateTNB[0]));
                 smsBody.setDateTime(cTNB.getTime());
                 String[] timeTNB = smsBody.getTime().split("\\:");
                 if (timeTNB.length != 3) return smsBody;
-                cTNB = new GregorianCalendar(
-                                                Integer.valueOf(yyyy), 
-                                                Integer.valueOf(dateTNB[1]), 
-                                                Integer.valueOf(dateTNB[0]), 
-                                                Integer.valueOf(timeTNB[0]), 
-                                                Integer.valueOf(timeTNB[1]), 
-                                                Integer.valueOf(timeTNB[2]));
+                cTNB.set(Calendar.HOUR, Integer.valueOf(timeTNB[0]));
+                cTNB.set(Calendar.MINUTE, Integer.valueOf(timeTNB[1]));
+                cTNB.set(Calendar.SECOND, Integer.valueOf(timeTNB[2]));
+//                cTNB = new GregorianCalendar(
+//                                                Integer.valueOf(yyyy), 
+//                                                Integer.valueOf(dateTNB[1]), 
+//                                                Integer.valueOf(dateTNB[0]), 
+//                                                Integer.valueOf(timeTNB[0]), 
+//                                                Integer.valueOf(timeTNB[1]), 
+//                                                Integer.valueOf(timeTNB[2]));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Log.i(LOG_TAG, "1 "+yyyy+"-"+dateTNB[1]+"-"+dateTNB[0]+" "
+                        +timeTNB[0]+":"+timeTNB[1]+":"+timeTNB[2]);
+                Log.i(LOG_TAG, "2 "+dateFormat.format(cTNB.getTime()));
+                
                 smsBody.setDateTime(cTNB.getTime());
                 return smsBody;
             default:

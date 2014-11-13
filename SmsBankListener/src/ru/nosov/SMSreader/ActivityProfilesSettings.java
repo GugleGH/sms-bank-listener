@@ -101,7 +101,7 @@ public class ActivityProfilesSettings extends Activity implements LoaderCallback
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-      getMenuInflater().inflate(R.menu.menu_profiles_list, menu);
+//      getMenuInflater().inflate(R.menu.menu_profiles_list, menu);
       return super.onCreateOptionsMenu(menu);
     }
     

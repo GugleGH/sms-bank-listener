@@ -62,7 +62,7 @@ public class AdapterProfile4Main extends SimpleCursorAdapter {
         BankAccountImpl ba = new BankAccountImpl(_context);
         ba.open();
         String str = null;
-        Cursor cBA = ba.getBankAccountsByIDProfile(_cursor.getInt(idIndex));
+        Cursor cBA = ba.getCursorBankAccountsByIDProfile(_cursor.getInt(idIndex));
         if (cBA.moveToFirst()) {
             int baIndex = cBA.getColumnIndex(BankAccount.COLUMN_NAME);
             do {

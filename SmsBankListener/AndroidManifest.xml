@@ -33,6 +33,7 @@
         </receiver>
     
         <service android:name="ru.nosov.SMSreader.receiver.SmsService" />
+        <service android:name="ru.nosov.SMSreader.receiver.CleaningBDService" />
         
     </application>
     

@@ -428,7 +428,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
         Log.d(LOG_TAG, "--- Rows in " + BankAccount.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
         bankAccountImpl.open();
-        Cursor c = (id < 1) ? bankAccountImpl.getAllBankAccounts(): bankAccountImpl.getBankAccountByID(id);
+        Cursor c = (id < 1) ? bankAccountImpl.getCurcorAllBankAccounts(): bankAccountImpl.getBankAccountByID(id);
         if (c.moveToFirst()) {
             int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
             int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
@@ -489,7 +489,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
         Log.d(LOG_TAG, "--- Rows in " + BankAccount.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
         bankAccountImpl.open();
-        Cursor c = bankAccountImpl.getBankAccountsByIDProfile(id);
+        Cursor c = bankAccountImpl.getCursorBankAccountsByIDProfile(id);
         if (c.moveToFirst()) {
             int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
             int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
@@ -531,7 +531,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private void testCard(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Card.TABLE_NAME + ": ---");
         cardImpl.open();
-        Cursor c = (id < 1) ? cardImpl.getAllCard(): cardImpl.getCardsByIDPhone(id);
+        Cursor c = (id < 1) ? cardImpl.getCursorAllCard(): cardImpl.getCardsByIDPhone(id);
         if (c.moveToFirst()) {
             int idIndex = c.getColumnIndex(Card.COLUMN_ID);
             int baIndex = c.getColumnIndex(Card.COLUMN_ID_BANK_ACCOUNT);
@@ -610,7 +610,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private void testTransaction(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Transaction.TABLE_NAME + ": ---");
         transactionImpl.open();
-        Cursor c = (id < 1) ? transactionImpl.getAllTransaction(): transactionImpl.getTransactionsByIDCard(id);
+        Cursor c = (id < 1) ? transactionImpl.getAllTransaction(): transactionImpl.getCursorTransactionsByIDCard(id);
         if (c.moveToFirst()) {
             int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
             int cIndex = c.getColumnIndex(Transaction.COLUMN_ID_CARD);

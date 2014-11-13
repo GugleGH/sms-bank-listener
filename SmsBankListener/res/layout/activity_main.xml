@@ -11,7 +11,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello, I am a TextView" />
+        android:text="@string/textView_main" />
     <ListView
         android:id="@+id/listViewMainProfiles"
         android:layout_width="fill_parent"
@@ -24,20 +24,20 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
         <Button 
-            android:id="@+id/buttonProfileList"
+            android:id="@+id/buttonBilling"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Profile list" />
+            android:text="@string/button_billing" />
         <Button 
             android:id="@+id/buttonTestBD"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Test DB" />
+            android:text="@string/button_test_bd" />
         <Button 
             android:id="@+id/buttonDropDB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Drop DB" />
+            android:text="@string/button_brop_bd" />
     </LinearLayout>
 </LinearLayout>
 

@@ -10,6 +10,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Transaction;
 
@@ -86,11 +90,11 @@ public class TransactionImpl {
     }
     
     /**
-     * Возвращает список операций по идентификатору карты.
+     * Возвращает курсор списка операций по идентификатору карты.
      * @param id_card идентификатор карты
-     * @return список операций
+     * @return курсор списка операций
      */
-    public Cursor getTransactionsByIDCard(int id_card) {
+    public Cursor getCursorTransactionsByIDCard(int id_card) {
         String[] fields = new String[] { Transaction.COLUMN_ID, 
                                          Transaction.COLUMN_ID_CARD,
                                          Transaction.COLUMN_DATE,
@@ -103,6 +107,82 @@ public class TransactionImpl {
                                Transaction.COLUMN_ID_CARD + "=?",
                                new String[] { String.valueOf(id_card) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает список операций по идентификатору карты.
+     * @param id_card идентификатор карты
+     * @return список операций
+     */
+    public ArrayList<Transaction> getTransactionsByIDCard(int id_card) {
+        ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+        if (id_card < 0) return transactions;
+        
+        this.open();
+        Cursor c = getCursorTransactionsByIDCard(id_card);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
+            int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
+            int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
+            int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+
+            do {
+                try {
+                    Transaction tr = new Transaction();
+                    tr.setId(c.getInt(idIndex));
+                    tr.setDateSQL(c.getString(dIndex));
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
+                    tr.setAmount(c.getFloat(aIndex));
+                    tr.setBalace(c.getFloat(bIndex));
+                    transactions.add(tr);
+                } catch (ParseException ex) {
+                    Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
+                }
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return transactions;
+    }
+    
+    /**
+     * Возвращает список операций по картам.
+     * @param cards список карт
+     * @return список операций
+     */
+    public ArrayList<Transaction> getTransactionsByIDCards(ArrayList<Card> cards) {
+        ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+        if ( (cards == null) || (cards.size() < 1) ) return transactions;
+        
+        this.open();
+        for (Card card : cards) {
+            Cursor c = getCursorTransactionsByIDCard(card.getId());
+            if (c.moveToFirst()) {
+                int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
+                int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
+                int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
+                int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+
+                do {
+                    try {
+                        Transaction tr = new Transaction();
+                        tr.setId(c.getInt(idIndex));
+                        tr.setDateSQL(c.getString(dIndex));
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
+                        tr.setAmount(c.getFloat(aIndex));
+                        tr.setBalace(c.getFloat(bIndex));
+                        transactions.add(tr);
+                    } catch (ParseException ex) {
+                        Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
+                    }
+                } while (c.moveToNext());
+            }
+        }
+        this.close();
+        
+        return transactions;
     }
     
     /**

@@ -14,7 +14,7 @@ and open the template in the editor.
         android:id="@+id/textViewTestDB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TestDB" />
+        android:text="@string/textView_test_bd" />
     <!-- ********************* Profiles ************************ -->
     <ListView 
         android:id="@+id/lvTestDBProfiles"
@@ -28,10 +28,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBProfiles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Profiles" />
+            android:text="@string/button_profiles" />
         <EditText
             android:id="@+id/etTestDBProfiles"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -49,10 +49,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBBankAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BankAccount" />
+            android:text="@string/button_bankAccount" />
         <EditText
             android:id="@+id/etTestDBBankAccount"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -70,10 +70,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBPhones"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Phone" />
+            android:text="@string/button_phone" />
         <EditText
             android:id="@+id/etTestDBPhones"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -91,10 +91,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Card" />
+            android:text="@string/button_card" />
         <EditText
             android:id="@+id/etTestDBCard"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -112,10 +112,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBTransaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Transaction" />
+            android:text="@string/button_transaction" />
         <EditText
             android:id="@+id/etTestDBTransaction"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -133,10 +133,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBRegex"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Regex" />
+            android:text="@string/button_regex" />
         <EditText
             android:id="@+id/etTestDBRegex"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -154,10 +154,10 @@ and open the template in the editor.
             android:id="@+id/bTestDBBank"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BankName" />
+            android:text="@string/button_bankName" />
         <EditText
             android:id="@+id/etTestDBBank"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number" />
@@ -168,6 +168,6 @@ and open the template in the editor.
         android:id="@+id/bAddTestData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add data" />
+        android:text="@string/button_add_test_data" />
     
 </LinearLayout>

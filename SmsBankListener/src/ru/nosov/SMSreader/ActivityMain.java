@@ -6,13 +6,10 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -23,11 +20,15 @@ import ru.nosov.SMSreader.db.Profile;
 import ru.nosov.SMSreader.db.adapters.AdapterProfile4Main;
 import ru.nosov.SMSreader.db.impl.ProfileImpl;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
+import ru.nosov.SMSreader.receiver.CleaningBDService;
 
 /**
  * http://startandroid.ru/ru/uroki/vse-uroki-spiskom.html
  * http://www.tutorialspoint.com/android/android_user_interface_layouts.htm
- * @author nosov
+ * 
+ * SmsBankListener / qwerty
+ * 
+ * @author Носов А.В.
  */
 public class ActivityMain extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     
@@ -42,7 +43,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
     private SimpleCursorAdapter adapterProfile;
     /** Доступ к профилям. */
     private ProfileImpl profileImpl;
-    private Button buttonProfileList;
+    private Button buttonBilling;
     private Button buttonTestDB;
     private TextView textView;
     // End of variables declaration
@@ -56,7 +57,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
         
 //        layoutLinear = (LinearLayout) findViewById(R.id.layoutLinear);
         listViewProfiles = (ListView) findViewById(R.id.listViewMainProfiles);
-        buttonProfileList = (Button) findViewById(R.id.buttonProfileList);
+        buttonBilling = (Button) findViewById(R.id.buttonBilling);
         buttonTestDB = (Button) findViewById(R.id.buttonTestBD);
         profileImpl = new ProfileImpl(this);
         
@@ -79,7 +80,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
 //            
 //        });
         
-        buttonProfileList.setOnClickListener( new OnClickListener() {
+        buttonBilling.setOnClickListener( new OnClickListener() {
 
             public void onClick(View v) {
                 myButtononClick(v);
@@ -109,9 +110,9 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
             case R.id.action_settings:
                 textView.setText("Select Settings");
                 return true;
-            case R.id.action_profiles_list:
-                visibleProfilesListActivity();
-                return true;
+//            case R.id.action_profiles_list:
+//                visibleProfilesListActivity();
+//                return true;
             case R.id.action_aboute:
                 textView.setText("Select Aboute");
                 return true;
@@ -148,8 +149,9 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
 
     public void myButtononClick(View v) {
         switch (v.getId()) {
-            case R.id.buttonProfileList:
-                visibleProfilesListActivity();
+            case R.id.buttonBilling:
+//                visibleProfilesListActivity();
+                startBillingService();
                 break;
             case R.id.buttonTestBD:
                 visibleTestBDActivity();
@@ -189,8 +191,13 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
      * Переход на страницу списка профилей.
      */
     private void visibleProfilesListActivity() {
-        Intent intent = new Intent(this, ActivityProfilesSettings.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, ActivityProfilesSettings.class);
+//        startActivity(intent);
+    }
+    
+    private void startBillingService() {
+        Intent cleaningBDService = new Intent(this, CleaningBDService.class);
+        this.startService(cleaningBDService);
     }
     
     /**

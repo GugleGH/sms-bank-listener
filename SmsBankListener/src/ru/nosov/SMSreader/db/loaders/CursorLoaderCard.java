@@ -36,6 +36,6 @@ public class CursorLoaderCard extends CursorLoader {
     
     @Override
     public Cursor loadInBackground() {
-        return cardImpl.getAllCard();
+        return cardImpl.getCursorAllCard();
     }
 }

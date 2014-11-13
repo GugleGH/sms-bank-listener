@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Phone;
@@ -34,13 +35,37 @@ public class CardImpl {
     }
     
     /**
-     * Возвращает все карты в базе.
-     * @return список карт
+     * Возвращает курсор всех карт в базе.
+     * @return курсор карт
      */
-    public Cursor getAllCard() {
+    public Cursor getCursorAllCard() {
         Cursor cursor = database.query(Card.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
+    }
+    
+    /**
+     * Возвращает список карт в базе.
+     * @return список карт
+     */
+    public ArrayList<Card> getAllCard() {
+        ArrayList<Card> cards = new ArrayList<Card>();
+        this.open();
+        
+        Cursor c = getCursorAllCard();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Card.COLUMN_ID);
+            int cnIndex = c.getColumnIndex(Card.COLUMN_CARD_NUMBER);
+            do {
+                Card card = new Card();
+                card.setId(c.getInt(idIndex));
+                card.setCardNumber(c.getString(cnIndex));
+                cards.add(card);
+            } while (c.moveToNext());
+        }
+        
+        this.close();
+        return cards;
     }
     
     /**
@@ -122,11 +147,11 @@ public class CardImpl {
     }
     
     /**
-     * Возвращает список карт по идентификатору банковского счета.
+     * Возвращает курсор списка карт по идентификатору банковского счета.
      * @param id_bankaccount идентификатор счета
-     * @return список карт
+     * @return курсор списка карт
      */
-    public Cursor getCardsByIDBankAccount(int id_bankaccount) {
+    public Cursor getCursorCardsByIDBankAccount(int id_bankaccount) {
         String[] fields = new String[] { Card.COLUMN_ID, 
                                          Card.COLUMN_ID_BANK_ACCOUNT,
                                          Card.COLUMN_CARD_NUMBER
@@ -137,6 +162,31 @@ public class CardImpl {
                                Card.COLUMN_ID_BANK_ACCOUNT + "=?",
                                new String[] { String.valueOf(id_bankaccount) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает список карт по идентификатору банковского счета.
+     * @param id_bankaccount идентификатор счета
+     * @return список карт
+     */
+    public ArrayList<Card> getCardsByIDBankAccount(int id_bankaccount) {
+        ArrayList<Card> cards = new ArrayList<Card>();
+        if (id_bankaccount < 0) return cards;
+        
+        this.open();
+        Cursor c = getCursorCardsByIDBankAccount(id_bankaccount);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Card.COLUMN_ID);
+            int cnIndex = c.getColumnIndex(Card.COLUMN_CARD_NUMBER);
+            do {
+                Card card = new Card();
+                card.setId(c.getInt(idIndex));
+                card.setCardNumber(c.getString(cnIndex));
+                cards.add(card);
+            } while (c.moveToNext());
+        }
+        this.close();
+        return cards;
     }
     
     // TODO тут
