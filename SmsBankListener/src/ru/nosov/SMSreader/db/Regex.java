@@ -6,7 +6,7 @@
 package ru.nosov.SMSreader.db;
 
 /**
- * Тело сообщения.
+ * Регулярное выражение для тела сообщения.
  * @author Носов А.В.
  */
 public class Regex {

@@ -49,8 +49,8 @@ public class BankAccountImpl {
      */
     public ArrayList<BankAccount> getAllBankAccounts() {
         ArrayList<BankAccount> accounts = new ArrayList<BankAccount>();
-        this.open();
         
+        this.open();
         Cursor c = getCurcorAllBankAccounts();
         if (c.moveToFirst()) {
             int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
@@ -63,17 +63,17 @@ public class BankAccountImpl {
                 accounts.add(ba);
             } while (c.moveToNext());
         }
-
         this.close();
+        
         return accounts;
     }
     
     /**
-     * Возвращает банковский счет по его идентификатору.
+     * Возвращает курсор банковского счета по его идентификатору.
      * @param id идентификатор счета
-     * @return банковский счет
+     * @return курсор банковского счета
      */
-    public Cursor getBankAccountByID(int id) {
+    public Cursor getCursorBankAccountByID(int id) {
         String[] fields = new String[] { BankAccount.COLUMN_ID, 
                                          BankAccount.COLUMN_NAME
                                        };
@@ -83,6 +83,29 @@ public class BankAccountImpl {
                                BankAccount.COLUMN_ID + "=?",
                                new String[] { String.valueOf(id) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает банковский счет по его идентификатору.
+     * @param id идентификатор счета
+     * @return банковский счет
+     */
+    public BankAccount getBankAccountByID(int id) {
+        BankAccount bankAccount = new BankAccount();
+        if (id < 0) return bankAccount;
+        
+        Cursor c = getCursorBankAccountByID(id);
+        this.open();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
+            int nIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
+            
+            bankAccount.setId(c.getInt(idIndex));
+            bankAccount.setName(c.getString(nIndex));
+        }
+        this.close();
+        
+        return bankAccount;
     }
     
     /**

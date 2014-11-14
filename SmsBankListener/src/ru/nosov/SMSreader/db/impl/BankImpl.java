@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.Bank;
 import ru.nosov.SMSreader.db.DBHelper;
 
@@ -32,21 +33,48 @@ public class BankImpl {
     }
     
     /**
-     * Возвращает все банки в базе.
-     * @return список банковский счет
+     * Возвращает курсор списка всех банков в базе.
+     * @return курсор списка всех банков
      */
-    public Cursor getAllBanks() {
+    public Cursor getCursorAllBanks() {
         Cursor cursor = database.query(Bank.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
     }
     
     /**
-     * Возвращает банк по его идентификатору.
-     * @param id идентификатор банка
-     * @return банк
+     * Возвращает список всех банков в базе.
+     * @return список всех банков
      */
-    public Cursor getBankByID(int id) {
+    public ArrayList<Bank> getAllBanks() {
+        ArrayList<Bank> banks = new ArrayList<Bank>();
+        
+        this.open();
+        Cursor c = getCursorAllBanks();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Bank.COLUMN_ID);
+            int nIndex = c.getColumnIndex(Bank.COLUMN_NAME);
+            int dIndex = c.getColumnIndex(Bank.COLUMN_DESCRIPTION);
+            
+            do {
+                Bank bank = new Bank();
+                bank.setId(c.getInt(idIndex));
+                bank.setName(c.getString(nIndex));
+                bank.setDescription(c.getString(dIndex));
+                banks.add(bank);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return banks;
+    }
+    
+    /**
+     * Возвращает курсор на банк по его идентификатору.
+     * @param id идентификатор банка
+     * @return курсор на банк
+     */
+    public Cursor getCursorBankByID(int id) {
         String[] fields = new String[] { Bank.COLUMN_ID, 
                                          Bank.COLUMN_NAME,
                                          Bank.COLUMN_DESCRIPTION
@@ -57,6 +85,30 @@ public class BankImpl {
                                Bank.COLUMN_ID + "=?",
                                new String[] { String.valueOf(id) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает банк по его идентификатору.
+     * @param id идентификатор банка
+     * @return банк
+     */
+    public Bank getBankByID(int id) {
+        Bank bank = new Bank();
+        
+        this.open();
+        Cursor c = getCursorBankByID(id);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Bank.COLUMN_ID);
+            int nIndex = c.getColumnIndex(Bank.COLUMN_NAME);
+            int dIndex = c.getColumnIndex(Bank.COLUMN_DESCRIPTION);
+            
+            bank.setId(c.getInt(idIndex));
+            bank.setName(c.getString(nIndex));
+            bank.setDescription(c.getString(dIndex));
+        }
+        this.close();
+        
+        return bank;
     }
     
     /**

@@ -169,5 +169,10 @@ and open the template in the editor.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_add_test_data" />
+    <Button
+        android:id="@+id/bReadSms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_read_sms" />
     
 </LinearLayout>

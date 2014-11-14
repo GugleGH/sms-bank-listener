@@ -13,8 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.Card;
@@ -60,7 +58,7 @@ public class CleaningBDService extends Service {
         cs.set(Calendar.MINUTE, 0);
         cs.set(Calendar.SECOND, 0);
 //        Date ds = cs.getTime();
-        Log.d(LOG_TAG, "Кол-во счетов:" + bankAccounts.size());
+//        Log.d(LOG_TAG, "Кол-во счетов:" + bankAccounts.size());
 
         for (BankAccount bankAccount : bankAccounts) {
             CardImpl cardImpl = new CardImpl(this);
@@ -68,17 +66,17 @@ public class CleaningBDService extends Service {
             
             if ( (cards == null) || (cards.isEmpty()) ) continue;
             
-            Log.d(LOG_TAG, "Счет: " + bankAccount.getName() + 
-                           "; Кол-во карт: " + cards.size());
+//            Log.d(LOG_TAG, "Счет: " + bankAccount.getName() + 
+//                           "; Кол-во карт: " + cards.size());
             
             TransactionImpl transactionImpl = new TransactionImpl(this);
             ArrayList<Transaction> transactions = transactionImpl.getTransactionsByIDCards(cards);
             Collections.sort(transactions);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            Log.d(LOG_TAG, "Текущая дата/Первая транзакция: " 
-                    + dateFormat.format(cs.getTime()) + "/" 
-                    + transactions.get(0).getDateSQL() + "/"
-                    + cs.getTime().equals(getCalendarByTransaction(transactions.get(0)).getTime()));
+//            Log.d(LOG_TAG, "Текущая дата/Первая транзакция: " 
+//                    + dateFormat.format(cs.getTime()) + "/" 
+//                    + transactions.get(0).getDateSQL() + "/"
+//                    + cs.getTime().equals(getCalendarByTransaction(transactions.get(0)).getTime()));
             
             ArrayList<Transaction> delList = new ArrayList<Transaction>();
             for (Transaction transaction : transactions) {
@@ -95,11 +93,11 @@ public class CleaningBDService extends Service {
                     Calendar next = getCalendarByTransaction(transaction);
 
                     dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                    Log.d(LOG_TAG, "Проверка дат: " 
-                            + dateFormat.format(start.getTime())
-                            + "/" 
-                            + dateFormat.format(next.getTime()) 
-                            + "/" + start.getTime().equals(next.getTime()));
+//                    Log.d(LOG_TAG, "Проверка дат: " 
+//                            + dateFormat.format(start.getTime())
+//                            + "/" 
+//                            + dateFormat.format(next.getTime()) 
+//                            + "/" + start.getTime().equals(next.getTime()));
 
                     // Если год и месяц первой транзакции в delList совпадает
                     // с той, что в БД то положить в delList
@@ -112,7 +110,7 @@ public class CleaningBDService extends Service {
                         // Новый месяц
                         delList = new ArrayList<Transaction>();
                         delList.add(transaction);
-                        Log.d(LOG_TAG, transaction.getDateSQL());
+//                        Log.d(LOG_TAG, transaction.getDateSQL());
                     }
                 }
             }
@@ -138,15 +136,15 @@ public class CleaningBDService extends Service {
      */
     private void startCleaning(ArrayList<Transaction> transactions) {
         if ( (transactions != null) && (transactions.size() < 1) ) return;
-        Log.d(LOG_TAG, "Чистим");
+//        Log.d(LOG_TAG, "Чистим");
         TransactionImpl transactionImpl = new TransactionImpl(this);
         transactionImpl.open();
         for (int i=0; i<transactions.size()-1; i++) {
             transactionImpl.deleteTransactionByID(transactions.get(i).getId());
-            Log.d(LOG_TAG, "- Удалили "+transactions.get(i).getId()+" "+
-                    transactions.get(i).getDateSQL());
+//            Log.d(LOG_TAG, "- Удалили "+transactions.get(i).getId()+" "+
+//                    transactions.get(i).getDateSQL());
         }
-        Log.d(LOG_TAG, "Остаток:" + transactions.get(transactions.size()-1).getDateSQL());
+//        Log.d(LOG_TAG, "Остаток:" + transactions.get(transactions.size()-1).getDateSQL());
         transactionImpl.close();
     }
     

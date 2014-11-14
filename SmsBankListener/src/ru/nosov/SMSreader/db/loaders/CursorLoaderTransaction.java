@@ -27,6 +27,6 @@ public class CursorLoaderTransaction extends CursorLoader {
     
     @Override
     public Cursor loadInBackground() {
-        return transactionImpl.getAllTransaction();
+        return transactionImpl.getCursorAllTransaction();
     }
 }

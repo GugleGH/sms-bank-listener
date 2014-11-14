@@ -27,6 +27,6 @@ public class CursorLoaderPhone extends CursorLoader {
     
     @Override
     public Cursor loadInBackground() {
-        return phoneImpl.getAllPhone();
+        return phoneImpl.getCursorAllPhone();
     }
 }

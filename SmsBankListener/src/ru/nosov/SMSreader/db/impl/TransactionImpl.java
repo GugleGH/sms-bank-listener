@@ -38,13 +38,43 @@ public class TransactionImpl {
     }
     
     /**
-     * Возвращает все операции в базе.
-     * @return список операций
+     * Возвращает курсор всех операции в базе.
+     * @return курсор всех операции
      */
-    public Cursor getAllTransaction() {
+    public Cursor getCursorAllTransaction() {
         Cursor cursor = database.query(Transaction.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
+    }
+    
+    /**
+     * Возвращает все операции в базе.
+     * @return список операций
+     */
+    public ArrayList<Transaction> getAllTransaction() {
+        ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+        
+        this.open();
+        Cursor c = getCursorAllTransaction();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
+            int cIndex = c.getColumnIndex(Transaction.COLUMN_ID_CARD);
+            int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
+            int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
+            int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+            do {
+                Transaction t = new Transaction();
+                t.setId(c.getInt(idIndex));
+                t.setIdCard(c.getInt(cIndex));
+                t.setDateSQL(c.getString(dIndex));
+                t.setAmount(c.getInt(aIndex));
+                t.setBalace(c.getInt(bIndex));
+                transactions.add(t);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return transactions;
     }
     
     /**

@@ -12,7 +12,6 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.DBHelper;
-import ru.nosov.SMSreader.db.Phone;
 import ru.nosov.SMSreader.db.PhoneCard;
 
 /**
@@ -50,8 +49,8 @@ public class CardImpl {
      */
     public ArrayList<Card> getAllCard() {
         ArrayList<Card> cards = new ArrayList<Card>();
-        this.open();
         
+        this.open();
         Cursor c = getCursorAllCard();
         if (c.moveToFirst()) {
             int idIndex = c.getColumnIndex(Card.COLUMN_ID);
@@ -63,8 +62,8 @@ public class CardImpl {
                 cards.add(card);
             } while (c.moveToNext());
         }
-        
         this.close();
+        
         return cards;
     }
     
@@ -122,11 +121,11 @@ public class CardImpl {
     }
     
     /**
-     * Возвращает список карт по идентификатору телефона.
+     * Возвращает курсор списка карт по идентификатору телефона.
      * @param id_phone идентификатор телефона
-     * @return список карт
+     * @return курсор списка карт
      */
-    public Cursor getCardsByIDPhone(int id_phone) {
+    public Cursor getCursorCardsByIDPhone(int id_phone) {
         String c = Card.TABLE_NAME;
         String phc = PhoneCard.TABLE_NAME;
         String[] fields = new String[] { c + "." + Card.COLUMN_ID,
@@ -144,6 +143,32 @@ public class CardImpl {
                                PhoneCard.COLUMN_ID_PHONE + "=?",
                                new String[] { String.valueOf(id_phone) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает список карт по идентификатору телефона.
+     * @param id_phone идентификатор телефона
+     * @return список карт
+     */
+    public ArrayList<Card> getCardsByIDPhone(int id_phone) {
+        ArrayList<Card> cards = new ArrayList<Card>();
+        if (id_phone < 0) return cards;
+        
+        this.open();
+        Cursor c = getCursorCardsByIDPhone(id_phone);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Card.COLUMN_ID);
+            int cnIndex = c.getColumnIndex(Card.COLUMN_CARD_NUMBER);
+            do {
+                Card card = new Card();
+                card.setId(c.getInt(idIndex));
+                card.setCardNumber(c.getString(cnIndex));
+                cards.add(card);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return cards;
     }
     
     /**

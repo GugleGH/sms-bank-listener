@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Profile;
@@ -33,53 +34,45 @@ public class ProfileImpl {
         this.context = c;
     }
     
-    public Cursor getAllProfiles() {
-//        Cursor cursor = database.query(Profile.TABLE_NAME, 
-//                null, null, null, null, null, null);
+    /**
+     * Возвращает курсор со списком профилей.
+     * @return курсор профилей
+     */
+    public Cursor getCursorAllProfiles() {
         return database.query(Profile.TABLE_NAME, 
                 null, null, null, null, null, null);
     }
     
-//    public Cursor getAllProfiles1() {
-//        String p = Profile.TABLE_NAME;
-//        String ba = BankAccount.TABLE_NAME;
-//        String pba = ProfileBankAccount.TABLE_NAME;
-//        String[] fields = new String[] { p + "." + Profile.COLUMN_VISIBLE_NAME,
-//                                         ba + "." + BankAccount.COLUMN_ID,
-//                                         ba + "." + BankAccount.COLUMN_NAME,
-//                                         pba + "." + ProfileBankAccount.COLUMN_ID_PROFILE
-//                                       };
-////        String sqlQuery = "SELECT *" + 
-////                " FROM ( " + ba +
-////                    " INNER JOIN " + pba +
-////                    " ON " + ba + "." + BankAccount.COLUMN_ID + " = " + 
-////                            pba + "." + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + " ) " +
-////                " WHERE " + pba + "." + ProfileBankAccount.COLUMN_ID_PROFILE + "=" + " ?";
-//        
-////        String sqlQueryT = "SELECT bankAccount._id, bankAccount.name, profiles_bankAccount._id_profiles " + 
-////                " FROM ( bankAccount" +
-////                    " INNER JOIN profiles_bankAccount " +
-////                    " ON bankAccount._id = profiles_bankAccount._id_bankAccount )" +
-////                " WHERE profiles_bankAccount._id_profiles =" + " ?";
-//        
-//        String table = ba +
-//                    " INNER JOIN " + pba + " ON " + 
-//                ba + "." + BankAccount.COLUMN_ID + " = " + 
-//                pba + "." + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT;
-//        
-//        return database.query( table, 
-//                               fields,
-//                               ProfileBankAccount.COLUMN_ID_PROFILE + "=?",
-//                               new String[] { String.valueOf(id_profile) },
-//                               null, null, null, null);
-//    }
+    /**
+     * Возвращает список профилей.
+     * @return список профилей
+     */
+    public ArrayList<Profile> getAllProfiles() {
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+        
+        Cursor c = getCursorAllProfiles();
+        this.open();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Profile.COLUMN_ID);
+            int vnIndex = c.getColumnIndex(Profile.COLUMN_VISIBLE_NAME);
+
+            do {
+                Profile p = new Profile();
+                p.setId(c.getInt(idIndex));
+                p.setVisibleName(c.getString(vnIndex));
+                profiles.add(p);
+            } while (c.moveToNext());
+        }
+        this.close();
+        return profiles;
+    }
     
     /**
-     * Возвращает профиль по ID.
+     * Возвращает курсор профиля по ID.
      * @param id идентификатор
-     * @return профиль
+     * @return курсор профиля
      */
-    public Cursor getProfileByID(int id) {
+    public Cursor getCursorProfileByID(int id) {
         String[] fields = new String[] { Profile.COLUMN_ID, 
                                          Profile.COLUMN_VISIBLE_NAME
                                        };
@@ -89,6 +82,29 @@ public class ProfileImpl {
                                Profile.COLUMN_ID + "=?",
                                new String[] { String.valueOf(id) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает профиль по ID.
+     * @param id идентификатор
+     * @return профиль
+     */
+    public Profile getProfileByID(int id) {
+        Profile profile = new Profile();
+        if (id < 0) return profile;
+        
+        Cursor c = getCursorProfileByID(id);
+        this.open();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Profile.COLUMN_ID);
+            int vnIndex = c.getColumnIndex(Profile.COLUMN_VISIBLE_NAME);
+            
+            profile.setId(c.getInt(idIndex));
+            profile.setVisibleName(c.getString(vnIndex));
+        }
+        this.close();
+        
+        return profile;
     }
     
     /**

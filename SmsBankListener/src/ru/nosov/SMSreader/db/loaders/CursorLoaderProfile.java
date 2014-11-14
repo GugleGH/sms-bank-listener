@@ -31,6 +31,6 @@ public class CursorLoaderProfile extends CursorLoader {
     @Override
     public Cursor loadInBackground() {
         Log.d(LOG_TAG, "loadInBackground");
-        return (profileImpl == null) ? null : profileImpl.getAllProfiles();
+        return (profileImpl == null) ? null : profileImpl.getCursorAllProfiles();
     }
 }

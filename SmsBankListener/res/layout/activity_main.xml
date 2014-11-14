@@ -33,11 +33,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/button_test_bd" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
         <Button 
             android:id="@+id/buttonDropDB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/button_brop_bd" />
+        <Button 
+            android:id="@+id/buttonReadSms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_read_sms" />
     </LinearLayout>
 </LinearLayout>
 

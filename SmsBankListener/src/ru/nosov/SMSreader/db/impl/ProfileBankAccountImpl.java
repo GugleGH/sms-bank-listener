@@ -8,6 +8,7 @@ package ru.nosov.SMSreader.db.impl;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.ProfileBankAccount;
 
@@ -31,13 +32,40 @@ public class ProfileBankAccountImpl {
     }
     
     /**
-     * Возвращает все банки в базе.
-     * @return список банковский счет
+     * Возвращает курсор на список связей профилей и банковских счетов.
+     * @return курсор на список
      */
-    public Cursor getAllPBA() {
+    public Cursor getCursorAllPBA() {
         Cursor cursor = database.query(ProfileBankAccount.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
+    }
+    
+    /**
+     * Возвращает список связей профилей и банковских счетов.
+     * @return список связей
+     */
+    public ArrayList<ProfileBankAccount> getAllPBA() {
+        ArrayList<ProfileBankAccount> profileBankAccounts = new ArrayList<ProfileBankAccount>();
+        
+        this.open();
+        Cursor c = getCursorAllPBA();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID);
+            int pIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_PROFILE);
+            int baIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT);
+            
+            do {
+                ProfileBankAccount pba = new ProfileBankAccount();
+                pba.setId(c.getInt(idIndex));
+                pba.setIdProfile(c.getInt(pIndex));
+                pba.setIdBankAccount(c.getInt(baIndex));
+                profileBankAccounts.add(pba);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return profileBankAccounts;
     }
     
     /**
@@ -45,7 +73,7 @@ public class ProfileBankAccountImpl {
      * @param idProfile идентификатор профиля
      * @return связь
      */
-    public Cursor getPBAByIDProfile(int idProfile) {
+    public Cursor getCursorPBAByIDProfile(int idProfile) {
         String[] fields = new String[] { ProfileBankAccount.COLUMN_ID,
                                          ProfileBankAccount.COLUMN_ID_PROFILE,
                                          ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT
@@ -59,11 +87,40 @@ public class ProfileBankAccountImpl {
     }
     
     /**
-     * Возвращает связь по ID счета.
-     * @param idBankAccount идентификатор счета
-     * @return связь
+     * Возвращает курсор связей по ID профиля.
+     * @param idProfile идентификатор профиля
+     * @return курсор связей
      */
-    public Cursor getPBAByIDBankAccount(int idBankAccount) {
+    public ArrayList<ProfileBankAccount> getPBAByIDProfile(int idProfile) {
+        ArrayList<ProfileBankAccount> profileBankAccounts = new ArrayList<ProfileBankAccount>();
+        if (idProfile < 0) return profileBankAccounts;
+        
+        this.open();
+        Cursor c = getCursorPBAByIDProfile(idProfile);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID);
+            int pIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_PROFILE);
+            int baIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT);
+            
+            do {
+                ProfileBankAccount pba = new ProfileBankAccount();
+                pba.setId(c.getInt(idIndex));
+                pba.setIdProfile(c.getInt(pIndex));
+                pba.setIdBankAccount(c.getInt(baIndex));
+                profileBankAccounts.add(pba);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return profileBankAccounts;
+    }
+    
+    /**
+     * Возвращает курсор связей по ID счета.
+     * @param idBankAccount идентификатор счета
+     * @return курсор связей
+     */
+    public Cursor getCursorPBAByIDBankAccount(int idBankAccount) {
         String[] fields = new String[] { ProfileBankAccount.COLUMN_ID,
                                          ProfileBankAccount.COLUMN_ID_PROFILE,
                                          ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT
@@ -74,6 +131,35 @@ public class ProfileBankAccountImpl {
                                ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + "=?",
                                new String[] { String.valueOf(idBankAccount) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает связь по ID счета.
+     * @param idBankAccount идентификатор счета
+     * @return связь
+     */
+    public ArrayList<ProfileBankAccount> getPBAByIDBankAccount(int idBankAccount) {
+        ArrayList<ProfileBankAccount> profileBankAccounts = new ArrayList<ProfileBankAccount>();
+        if (idBankAccount < 0) return profileBankAccounts;
+        
+        this.open();
+        Cursor c = getCursorPBAByIDBankAccount(idBankAccount);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID);
+            int pIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_PROFILE);
+            int baIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT);
+            
+            do {
+                ProfileBankAccount pba = new ProfileBankAccount();
+                pba.setId(c.getInt(idIndex));
+                pba.setIdProfile(c.getInt(pIndex));
+                pba.setIdBankAccount(c.getInt(baIndex));
+                profileBankAccounts.add(pba);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return profileBankAccounts;
     }
     
     /**

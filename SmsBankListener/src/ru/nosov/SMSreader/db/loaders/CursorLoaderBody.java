@@ -27,6 +27,6 @@ public class CursorLoaderBody extends CursorLoader {
     
     @Override
     public Cursor loadInBackground() {
-        return bodyImpl.getAllRegex();
+        return bodyImpl.getCursorAllRegex();
     }
 }

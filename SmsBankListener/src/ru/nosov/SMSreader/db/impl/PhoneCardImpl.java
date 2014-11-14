@@ -8,6 +8,7 @@ package ru.nosov.SMSreader.db.impl;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.PhoneCard;
 
@@ -31,21 +32,47 @@ public class PhoneCardImpl {
     }
     
     /**
-     * Возвращает все банки в базе.
-     * @return список банковский счет
+     * Возвращает курсов на список связей номеров и карт.
+     * @return курсов на список
      */
-    public Cursor getAllPC() {
+    public Cursor getCursorAllPC() {
         Cursor cursor = database.query(PhoneCard.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
     }
     
     /**
-     * Возвращает связь по ID телефона.
-     * @param idPhone идентификатор телефона
-     * @return связь
+     * Возвращает список связей номеров и карт.
+     * @return список связей
      */
-    public Cursor getPCByIDPhone(int idPhone) {
+    public ArrayList<PhoneCard> getAllPC() {
+        ArrayList<PhoneCard> phoneCards = new ArrayList<PhoneCard>();
+        
+        this.open();
+        Cursor c = getCursorAllPC();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(PhoneCard.COLUMN_ID);
+            int pIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_PHONE);
+            int cIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_CARD);
+            do {
+                PhoneCard phoneCard = new PhoneCard();
+                phoneCard.setId(c.getInt(idIndex));
+                phoneCard.setIdPhone(c.getInt(pIndex));
+                phoneCard.setIdCard(c.getInt(cIndex));
+                phoneCards.add(phoneCard);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return phoneCards;
+    }
+    
+    /**
+     * Возвращает список связей номеров и карт по ID номера
+     * @param idPhone идентификатор телефона
+     * @return список связей
+     */
+    public Cursor getCursorPCByIDPhone(int idPhone) {
         String[] fields = new String[] { PhoneCard.COLUMN_ID,
                                          PhoneCard.COLUMN_ID_PHONE,
                                          PhoneCard.COLUMN_ID_CARD
@@ -59,11 +86,39 @@ public class PhoneCardImpl {
     }
     
     /**
-     * Возвращает связь по ID карыт.
-     * @param idCard идентификатор карты
-     * @return связь
+     * Возвращает список связей номеров и карт по ID номера
+     * @param idPhone идентификатор телефона
+     * @return список связей
      */
-    public Cursor getPCByIDCard(int idCard) {
+    public ArrayList<PhoneCard> getPCByIDPhone(int idPhone) {
+        ArrayList<PhoneCard> phoneCards = new ArrayList<PhoneCard>();
+        if (idPhone < 0) return phoneCards;
+        
+        this.open();
+        Cursor c = getCursorPCByIDPhone(idPhone);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(PhoneCard.COLUMN_ID);
+            int pIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_PHONE);
+            int cIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_CARD);
+            do {
+                PhoneCard phoneCard = new PhoneCard();
+                phoneCard.setId(c.getInt(idIndex));
+                phoneCard.setIdPhone(c.getInt(pIndex));
+                phoneCard.setIdCard(c.getInt(cIndex));
+                phoneCards.add(phoneCard);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return phoneCards;
+    }
+    
+    /**
+     * Возвращает курсор списка связей номераа и карты по ID карыт.
+     * @param idCard идентификатор карты
+     * @return курсор списка связей
+     */
+    public Cursor getCursorPCByIDCard(int idCard) {
         String[] fields = new String[] { PhoneCard.COLUMN_ID,
                                          PhoneCard.COLUMN_ID_PHONE,
                                          PhoneCard.COLUMN_ID_CARD
@@ -74,6 +129,34 @@ public class PhoneCardImpl {
                                PhoneCard.COLUMN_ID_CARD + "=?",
                                new String[] { String.valueOf(idCard) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает список связей номера и карты по ID карыт.
+     * @param idCard идентификатор карты
+     * @return список связей
+     */
+    public ArrayList<PhoneCard> getPCByIDCard(int idCard) {
+        ArrayList<PhoneCard> phoneCards = new ArrayList<PhoneCard>();
+        if (idCard < 0) return phoneCards;
+        
+        this.open();
+        Cursor c = getCursorPCByIDCard(idCard);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(PhoneCard.COLUMN_ID);
+            int pIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_PHONE);
+            int cIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_CARD);
+            do {
+                PhoneCard phoneCard = new PhoneCard();
+                phoneCard.setId(c.getInt(idIndex));
+                phoneCard.setIdPhone(c.getInt(pIndex));
+                phoneCard.setIdCard(c.getInt(cIndex));
+                phoneCards.add(phoneCard);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return phoneCards;
     }
     
     /**

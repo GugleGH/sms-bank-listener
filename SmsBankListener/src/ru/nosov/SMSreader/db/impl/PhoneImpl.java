@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Phone;
 
@@ -32,21 +33,49 @@ public class PhoneImpl {
     }
     
     /**
-     * Возвращает все телефоны в базе.
-     * @return список телефонов
+     * Возвращает курсор всех телефонов в базе.
+     * @return курсов всех телефонов
      */
-    public Cursor getAllPhone() {
+    public Cursor getCursorAllPhone() {
         Cursor cursor = database.query(Phone.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
     }
     
     /**
-     * Возвращает телефон по его идентификатору.
-     * @param id идентификатор телефона
-     * @return телефон
+     * Возвращает все телефоны в базе.
+     * @return список телефонов
      */
-    public Cursor getPhoneByID(int id) {
+    public ArrayList<Phone> getAllPhone() {
+        ArrayList<Phone> phones = new ArrayList<Phone>();
+        
+        this.open();
+        Cursor c = getCursorAllPhone();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Phone.COLUMN_ID);
+            int bIndex = c.getColumnIndex(Phone.COLUMN_ID_BANK);
+            int daIndex = c.getColumnIndex(Phone.COLUMN_DISPLAY_ADDRESS);
+            int oaIndex = c.getColumnIndex(Phone.COLUMN_ORIGINATING_ADDRESS);
+            do {
+                Phone phone = new Phone();
+                phone.setId(c.getInt(idIndex));
+                phone.setIdBank(c.getInt(bIndex));
+                phone.setDisplayAddress(c.getString(daIndex));
+                phone.setOriginatingAddress(c.getString(oaIndex));
+                phones.add(phone);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return phones;
+    }
+    
+    /**
+     * Возвращает курсор номера по его идентификатору.
+     * @param id идентификатор телефона
+     * @return курсор номера
+     */
+    public Cursor getCursorPhoneByID(int id) {
         String[] fields = new String[] { Phone.COLUMN_ID, 
                                          Phone.COLUMN_ID_BANK,
                                          Phone.COLUMN_DISPLAY_ADDRESS,
@@ -58,6 +87,33 @@ public class PhoneImpl {
                                Phone.COLUMN_ID + "=?",
                                new String[] { String.valueOf(id) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает телефон по его идентификатору.
+     * @param id идентификатор телефона
+     * @return телефон
+     */
+    public Phone getPhoneByID(int id) {
+        Phone phone = new Phone();
+        if (id < 0) return phone;
+        
+        this.open();
+        Cursor c = getCursorPhoneByID(id);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Phone.COLUMN_ID);
+            int bIndex = c.getColumnIndex(Phone.COLUMN_ID_BANK);
+            int daIndex = c.getColumnIndex(Phone.COLUMN_DISPLAY_ADDRESS);
+            int oaIndex = c.getColumnIndex(Phone.COLUMN_ORIGINATING_ADDRESS);
+
+            phone.setId(c.getInt(idIndex));
+            phone.setIdBank(c.getInt(bIndex));
+            phone.setDisplayAddress(c.getString(daIndex));
+            phone.setOriginatingAddress(c.getString(oaIndex));
+        }
+        this.close();
+        
+        return phone;
     }
     
     /**

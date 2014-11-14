@@ -44,7 +44,8 @@ public class DBHelper extends SQLiteOpenHelper {
     /** Регулярное выражение пробела или начала строки. */
     private static String REGEX_SPASE = "(?:^|\\s)";
     /** Регулярное выражение любое колво любого символа. */
-    private static String REGEX_ANY = "(?:[-+0-9a-zA-Z.\\s\\*\\/\\:\\;]+|(?:$))";
+    //private static String REGEX_ANY = "(?:[-+0-9a-zA-Z.\\s\\*\\/\\:\\;]+|(?:$))";
+    private static String REGEX_ANY = ".*";
     /** Регулярное выражение ДД.ММ.ГГ. */
     private static String REGEX_DDMMYY_POINT = "((?:(?:[0-2][0-9])|(?:3[0-1])|[1-9])\\.(?:(?:0[1-9])|(?:1[0-2])|(?:[1-9]))\\.(?:\\d{2}))";
     /** Регулярное выражение ДД/ММ/ГГГГ. */
@@ -67,7 +68,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static int idPhoneTNB = 2;
     private static int idRegexRaiffeisen1 = 1;
     private static int idRegexRaiffeisen2 = 2;
-    private static int idRegexTNB = 3;
+    private static int idRegexRaiffeisen3 = 3;
+    private static int idRegexTNB = 4;
     private static int idProfileAll = 1;
     private static int idProfileRaiffeisen = 2;
     private static int idProfileTNB = 3;
@@ -232,8 +234,22 @@ public class DBHelper extends SQLiteOpenHelper {
                                      + "(?: na " + REGEX_DDMMYYYY_SLASH + ":)"
                                      + "(?: " + REGEX_MANY_TCHK + " RUR)"
                                      + REGEX_ANY;
+        
         cv = new ContentValues();
         cv.put(Regex.COLUMN_ID, idRegexRaiffeisen2);
+        cv.put(Regex.COLUMN_ID_BANK, idBankRaiffeisen);
+        cv.put(Regex.COLUMN_REGEX, regex);
+        db.insert(Regex.TABLE_NAME, null, cv);
+        // Райффайзен (пополнение)
+        regex = REGEX_ANY + REGEX_CARD_1 + REGEX_ANY
+                                     + "(?: " + REGEX_DDMMYYYY_SLASH + " )"
+                                     + REGEX_ANY
+                                     + "(?:na " + REGEX_MANY_TCHK + " RUR)"
+                                     + REGEX_ANY
+                                     + "(?: Dostupny ostatok\\: " + REGEX_MANY_TCHK + " RUR)"
+                                     + REGEX_ANY;
+        cv = new ContentValues();
+        cv.put(Regex.COLUMN_ID, idRegexRaiffeisen3);
         cv.put(Regex.COLUMN_ID_BANK, idBankRaiffeisen);
         cv.put(Regex.COLUMN_REGEX, regex);
         db.insert(Regex.TABLE_NAME, null, cv);

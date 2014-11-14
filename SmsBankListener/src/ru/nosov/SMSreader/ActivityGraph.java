@@ -47,6 +47,8 @@ public class ActivityGraph extends Activity {
     
     // Variables declaration
     private final String LOG_TAG = LOG_NAME + "ActivityGraph";
+    public static final String ID_PROFILE = "idProfile";
+    
     /** Основная разметка. */
     private LinearLayout layoutLinearGraph;
     /** Идентификатор профиля. */
@@ -61,20 +63,19 @@ public class ActivityGraph extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+//        Log.i(LOG_TAG, "onCreate");
         setContentView(R.layout.activity_graph);
         Intent intent = getIntent();
-        idProfile = intent.getIntExtra("idProfile", -1);
+        idProfile = intent.getIntExtra(ID_PROFILE, -1);
         
         layoutLinearGraph = (LinearLayout) findViewById(R.id.layoutLinearGraph);
         
 //        String name = getProfileName();
         
         ArrayList<BankAccount> bas = getBankAccountsByProfile();
-        
+//        Log.d(LOG_TAG, "Профиль ID=" + idProfile + "; BA=" + bas.size());
 //        Log.d(LOG_TAG, "Профиль ID=" + idProfile + "; " + name + "; BA=" + bas.size());
         
-        //LinearLayout layout = (LinearLayout) findViewById(R.id.layout);
-        //layoutLinearGraph.addView(createGraphView(bas));
         layoutLinearGraph.addView(createAchartEngine(bas));
     }
     
@@ -108,7 +109,7 @@ public class ActivityGraph extends Activity {
         String name = null;
         ProfileImpl profileImpl = new ProfileImpl(this);
         profileImpl.open();
-        Cursor c = profileImpl.getProfileByID(idProfile);
+        Cursor c = profileImpl.getCursorProfileByID(idProfile);
         if (c.moveToFirst()) {
 //            int idIndex = c.getColumnIndex(Profile.COLUMN_ID);
             int vnIndex = c.getColumnIndex(Profile.COLUMN_VISIBLE_NAME);
@@ -144,8 +145,10 @@ public class ActivityGraph extends Activity {
         if (account == null) return null;
         
         CardImpl cardImpl = new CardImpl(this);
-        
-        return  cardImpl.getCardsByIDBankAccount(account.getId());
+        ArrayList<Card> cards = cardImpl.getCardsByIDBankAccount(account.getId());
+//        Log.d(LOG_TAG, "Card count:" + cards.size());
+        return cards;
+//        return cardImpl.getCardsByIDBankAccount(account.getId());
     }
     
     /**
@@ -158,36 +161,7 @@ public class ActivityGraph extends Activity {
         
         TransactionImpl transactionsImpl = new TransactionImpl(this);
         ArrayList<Transaction> transactions = transactionsImpl.getTransactionsByIDCards(cards);
-        
-//        TransactionImpl transactionsImpl = new TransactionImpl(this);
-//        transactionsImpl.open();
-//        
-//        for (Card card : cards) {
-//            Cursor c = transactionsImpl.getCursorTransactionsByIDCard(card.getId());
-//            if (c.moveToFirst()) {
-//                int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
-//                int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
-//                int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
-//                int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
-//
-//                do {
-//                    try {
-//                        Transaction tr = new Transaction();
-//                        tr.setId(c.getInt(idIndex));
-//                        tr.setDateSQL(c.getString(dIndex));
-//                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-//                        tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
-//                        tr.setAmount(c.getFloat(aIndex));
-//                        tr.setBalace(c.getFloat(bIndex));
-//                        transactions.add(tr);
-//                    } catch (ParseException ex) {
-//                        Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
-//                    }
-//                } while (c.moveToNext());
-//            }
-//        }
-//        transactionsImpl.close();
-        
+//        Log.d(LOG_TAG, "Transaction count:" + transactions.size());
         Collections.sort(transactions);
         
         return transactions;
@@ -237,18 +211,13 @@ public class ActivityGraph extends Activity {
             ArrayList<Transaction> ts = getTransactionsByIDCard(getCardsByIDBankAccount(ba));
             if (ts.size() < 1) continue;
             
-            for (int i=0; i<ts.size(); i++) {
-                Transaction t = ts.get(i);
+            for (Transaction t : ts) {
                 double d = t.getDateTime().getTime();
 //                double b = t.getBalace();
                 String res = dateFormat.format(new Date((long)d)) + 
                         "\n(" + t.getAmount() + ")";
                 series.add(d, t.getBalace());
                 series.addAnnotation(res, d, t.getBalace());
-                
-                
-//                mRenderer.addXTextLabel(d, res);
-//                mRenderer.addYTextLabel(t.getBalace(), String.valueOf(t.getBalace()));
             }
             String desc = ba.getName() + " / " + ts.get(ts.size()-1).getBalace();
             series.setTitle(desc);

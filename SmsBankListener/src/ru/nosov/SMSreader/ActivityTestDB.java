@@ -7,9 +7,11 @@ package ru.nosov.SMSreader;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -118,6 +120,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private PhoneCardImpl phoneCardImpl;
     
     private Button buttonAdd;
+    private Button buttonReadSms;
     // End of variables declaration
     
     @Override
@@ -252,7 +255,14 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
         
         // ********************** Button **********************
         buttonAdd = (Button) findViewById(R.id.bAddTestData);
+        buttonReadSms = (Button) findViewById(R.id.bReadSms);
         buttonAdd.setOnClickListener( new View.OnClickListener() {
+
+            public void onClick(View v) {
+                buttonClick(v);
+            }
+        });
+        buttonReadSms.setOnClickListener( new View.OnClickListener() {
 
             public void onClick(View v) {
                 buttonClick(v);
@@ -399,6 +409,10 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
             case R.id.bAddTestData:
                 addData();
                 break;
+            case R.id.bReadSms:
+                readSms("Bank");
+                readSms("15555215556");
+                break;
             default:
         }
     }
@@ -406,19 +420,17 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private void testProfile(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Profile.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        profileImpl.open();
-        Cursor c = (id < 1) ? profileImpl.getAllProfiles() : profileImpl.getProfileByID(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Profile.COLUMN_ID);
-            int vnIndex = c.getColumnIndex(Profile.COLUMN_VISIBLE_NAME);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + Profile.COLUMN_VISIBLE_NAME + " = " + c.getString(vnIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        profileImpl.close();
+        
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+        if (id < 1) profiles = profileImpl.getAllProfiles();
+        else profiles.add(profileImpl.getProfileByID(id));
+        
+        for (Profile p : profiles) {
+                Log.d(LOG_TAG, "ID = " + p.getId() + 
+                    ", " + Profile.COLUMN_VISIBLE_NAME + " = " + p.getVisibleName());
+        }
+        
+        if (profiles.isEmpty()) Log.d(LOG_TAG, "0 rows");
         
         testPBAByProfile(id);
         testBankAccountByProfile(id);
@@ -427,19 +439,17 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private void testBankAccount(int id) {
         Log.d(LOG_TAG, "--- Rows in " + BankAccount.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        bankAccountImpl.open();
-        Cursor c = (id < 1) ? bankAccountImpl.getCurcorAllBankAccounts(): bankAccountImpl.getBankAccountByID(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
-            int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + BankAccount.COLUMN_NAME + " = " + c.getString(baIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        bankAccountImpl.close();
+        
+        ArrayList<BankAccount> bankAccounts = new ArrayList<BankAccount>();
+        if (id < 1) bankAccounts = bankAccountImpl.getAllBankAccounts();
+        else bankAccounts.add(bankAccountImpl.getBankAccountByID(id));
+        
+        for (BankAccount ba : bankAccounts) {
+                Log.d(LOG_TAG, "ID = " + ba.getId() + 
+                    ", " + BankAccount.COLUMN_NAME + " = " + ba.getName());
+        }
+        
+        if (bankAccounts.isEmpty()) Log.d(LOG_TAG, "0 rows");
         
         testPBAByBankAccount(id);
     }
@@ -447,104 +457,87 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private void testPBAByProfile(int id) {
         Log.d(LOG_TAG, "--- Rows in " + ProfileBankAccount.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        profileBankAccountImpl.open();
-        Cursor c = (id < 1) ? profileBankAccountImpl.getAllPBA(): profileBankAccountImpl.getPBAByIDProfile(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID);
-            int pIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_PROFILE);
-            int baIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + ProfileBankAccount.COLUMN_ID_PROFILE + " = " + c.getString(pIndex) +
-                    ", " + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + " = " + c.getString(baIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        profileBankAccountImpl.close();
+        
+        ArrayList<ProfileBankAccount> profileBankAccounts = null;
+        if (id < 1) profileBankAccounts = profileBankAccountImpl.getAllPBA();
+        else profileBankAccounts = profileBankAccountImpl.getPBAByIDProfile(id);
+        
+        for (ProfileBankAccount bankAccount : profileBankAccounts) {
+                Log.d(LOG_TAG, "ID = " + bankAccount.getId() + 
+                    ", " + ProfileBankAccount.COLUMN_ID_PROFILE + " = " + bankAccount.getIdProfile() +
+                    ", " + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + " = " + bankAccount.getIdBankAccount());
+        }
+        
+        if (profileBankAccounts.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
     
     private void testPBAByBankAccount(int id) {
         Log.d(LOG_TAG, "--- Rows in " + ProfileBankAccount.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        profileBankAccountImpl.open();
-        Cursor c = (id < 1) ? profileBankAccountImpl.getAllPBA(): profileBankAccountImpl.getPBAByIDBankAccount(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID);
-            int pIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_PROFILE);
-            int baIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + ProfileBankAccount.COLUMN_ID_PROFILE + " = " + c.getString(pIndex) +
-                    ", " + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + " = " + c.getString(baIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        profileBankAccountImpl.close();
+        
+        ArrayList<ProfileBankAccount> profileBankAccounts = null;
+        if (id < 1) profileBankAccounts = profileBankAccountImpl.getAllPBA();
+        else profileBankAccounts = profileBankAccountImpl.getPBAByIDBankAccount(id);
+        
+        for (ProfileBankAccount bankAccount : profileBankAccounts) {
+                Log.d(LOG_TAG, "ID = " + bankAccount.getId() + 
+                    ", " + ProfileBankAccount.COLUMN_ID_PROFILE + " = " + bankAccount.getIdProfile() +
+                    ", " + ProfileBankAccount.COLUMN_ID_BANK_ACCOUNT + " = " + bankAccount.getIdBankAccount());
+        }
+        
+        if (profileBankAccounts.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
     
     private void testBankAccountByProfile(int id) {
         if (id < 1) return;
         Log.d(LOG_TAG, "--- Rows in " + BankAccount.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        bankAccountImpl.open();
-        Cursor c = bankAccountImpl.getCursorBankAccountsByIDProfile(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(BankAccount.COLUMN_ID);
-            int baIndex = c.getColumnIndex(BankAccount.COLUMN_NAME);
-            int pIndex = c.getColumnIndex(ProfileBankAccount.COLUMN_ID_PROFILE);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + BankAccount.COLUMN_NAME + " = " + c.getString(baIndex) +
-                    ", " + ProfileBankAccount.COLUMN_ID_PROFILE + " = " + c.getString(pIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        bankAccountImpl.close();
+        
+        ArrayList<BankAccount> bankAccounts = new ArrayList<BankAccount>();
+        if (id < 1) bankAccounts = bankAccountImpl.getBankAccountsByIDProfile(id);
+        
+        for (BankAccount ba : bankAccounts) {
+                Log.d(LOG_TAG, "ID = " + ba.getId() + 
+                    ", " + BankAccount.COLUMN_NAME + " = " + ba.getName());
+        }
+        
+        if (bankAccounts.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
     
     private void testPhone(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Phone.TABLE_NAME + ": ---");
-        phoneImpl.open();
-        Cursor c = (id < 1) ? phoneImpl.getAllPhone(): phoneImpl.getPhoneByID(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Phone.COLUMN_ID);
-            int idbnIndex = c.getColumnIndex(Phone.COLUMN_ID_BANK);
-            int daIndex = c.getColumnIndex(Phone.COLUMN_DISPLAY_ADDRESS);
-            int oaIndex = c.getColumnIndex(Phone.COLUMN_ORIGINATING_ADDRESS);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + Phone.COLUMN_ID_BANK + " = " + c.getInt(idbnIndex) + 
-                    ", " + Phone.COLUMN_DISPLAY_ADDRESS + " = " + c.getString(daIndex) + 
-                    ", " + Phone.COLUMN_ORIGINATING_ADDRESS + " = " + c.getString(oaIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        phoneImpl.close();
+        Log.d(LOG_TAG, "--- ID=" + id + " ---");
+        
+        ArrayList<Phone> phones = new ArrayList<Phone>();
+        if (id < 1) phones = phoneImpl.getAllPhone();
+        else phones.add(phoneImpl.getPhoneByID(id));
+        
+        for (Phone ph : phones) {
+                Log.d(LOG_TAG, "ID = " + ph.getId()+ 
+                    ", " + Phone.COLUMN_ID_BANK + " = " + ph.getIdBank()+ 
+                    ", " + Phone.COLUMN_DISPLAY_ADDRESS + " = " + ph.getDisplayAddress()+ 
+                    ", " + Phone.COLUMN_ORIGINATING_ADDRESS + " = " + ph.getOriginatingAddress());
+        }
+        
+        if (phones.isEmpty()) Log.d(LOG_TAG, "0 rows");
         
         testPCByPhone(id);
     }
     
     private void testCard(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Card.TABLE_NAME + ": ---");
-        cardImpl.open();
-        Cursor c = (id < 1) ? cardImpl.getCursorAllCard(): cardImpl.getCardsByIDPhone(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Card.COLUMN_ID);
-            int baIndex = c.getColumnIndex(Card.COLUMN_ID_BANK_ACCOUNT);
-            int cnIndex = c.getColumnIndex(Card.COLUMN_CARD_NUMBER);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + Card.COLUMN_ID_BANK_ACCOUNT + " = " + c.getString(baIndex) + 
-                    ", " + Card.COLUMN_CARD_NUMBER + " = " + c.getString(cnIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        cardImpl.close();
+        
+        ArrayList<Card> cards;
+        if (id < 1) cards = cardImpl.getAllCard();
+        else cards = cardImpl.getCardsByIDPhone(id);
+        
+        for (Card c : cards) {
+                Log.d(LOG_TAG, "ID = " + c.getId() + 
+                    ", " + Card.COLUMN_ID_BANK_ACCOUNT + " = " + c.getIdBankAccount() + 
+                    ", " + Card.COLUMN_CARD_NUMBER + " = " + c.getCardNumber());
+        }
+        
+        if (cards.isEmpty()) Log.d(LOG_TAG, "0 rows");
         
         testPCByCard(id);
     }
@@ -552,123 +545,96 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
     private void testPCByPhone(int id) {
         Log.d(LOG_TAG, "--- Rows in " + PhoneCard.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        phoneCardImpl.open();
-        Cursor c = (id < 1) ? phoneCardImpl.getAllPC(): phoneCardImpl.getPCByIDPhone(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(PhoneCard.COLUMN_ID);
-            int pIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_PHONE);
-            int cIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_CARD);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + PhoneCard.COLUMN_ID_PHONE + " = " + c.getString(pIndex) +
-                    ", " + PhoneCard.COLUMN_ID_CARD + " = " + c.getString(cIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        phoneCardImpl.close();
+        
+        ArrayList<PhoneCard> phoneCards;
+        if (id < 1) phoneCards = phoneCardImpl.getAllPC();
+        else phoneCards = phoneCardImpl.getPCByIDPhone(id);
+        
+        for (PhoneCard pc : phoneCards) {
+                Log.d(LOG_TAG, "ID = " + pc.getId() + 
+                    ", " + PhoneCard.COLUMN_ID_PHONE + " = " + pc.getIdPhone() +
+                    ", " + PhoneCard.COLUMN_ID_CARD + " = " + pc.getIdCard());
+        }
         
         if (id < 0) return;
-        cardImpl.open();
         
-        Cursor cCard = cardImpl.getCardsByIDPhone(id);
-        if (cCard != null) {
-            if (cCard.moveToFirst()) {
-                int idIndex = cCard.getColumnIndex(Card.COLUMN_ID);
-                int baIndex = cCard.getColumnIndex(Card.COLUMN_ID_BANK_ACCOUNT);
-                int cnIndex = cCard.getColumnIndex(Card.COLUMN_CARD_NUMBER);
-                
-                do {
-                    Log.d(LOG_TAG, "ID = " + cCard.getInt(idIndex) +
-                        ", " + Card.COLUMN_ID_BANK_ACCOUNT + " = " + cCard.getInt(baIndex) +
-                        ", " + Card.COLUMN_CARD_NUMBER + " = " + cCard.getString(cnIndex));
-                } while (cCard.moveToNext());
-            }
+        ArrayList<Card> cards = cardImpl.getCardsByIDPhone(id);
+        for (Card c : cards) {
+            Log.d(LOG_TAG, "ID = " + c.getId() +
+                ", " + Card.COLUMN_ID_BANK_ACCOUNT + " = " + c.getIdBankAccount() +
+                ", " + Card.COLUMN_CARD_NUMBER + " = " + c.getCardNumber());
         }
     }
     
     private void testPCByCard(int id) {
         Log.d(LOG_TAG, "--- Rows in " + PhoneCard.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        phoneCardImpl.open();
-        Cursor c = (id < 1) ? phoneCardImpl.getAllPC(): phoneCardImpl.getPCByIDCard(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(PhoneCard.COLUMN_ID);
-            int pIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_PHONE);
-            int cIndex = c.getColumnIndex(PhoneCard.COLUMN_ID_CARD);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + PhoneCard.COLUMN_ID_PHONE + " = " + c.getString(pIndex) +
-                    ", " + PhoneCard.COLUMN_ID_CARD + " = " + c.getString(cIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        phoneCardImpl.close();
+        
+        ArrayList<PhoneCard> phoneCards;
+        if (id < 0) phoneCards = phoneCardImpl.getAllPC();
+        else phoneCards = phoneCardImpl.getPCByIDCard(id);
+        
+        for (PhoneCard phoneCard : phoneCards) {
+                Log.d(LOG_TAG, "ID = " + phoneCard.getId() + 
+                    ", " + PhoneCard.COLUMN_ID_PHONE + " = " + phoneCard.getIdPhone() + 
+                    ", " + PhoneCard.COLUMN_ID_CARD + " = " + phoneCard.getIdCard());
+        }
+        
+        if (phoneCards.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
     
     private void testTransaction(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Transaction.TABLE_NAME + ": ---");
-        transactionImpl.open();
-        Cursor c = (id < 1) ? transactionImpl.getAllTransaction(): transactionImpl.getCursorTransactionsByIDCard(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
-            int cIndex = c.getColumnIndex(Transaction.COLUMN_ID_CARD);
-            int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
-            int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
-            int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
-            
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + Transaction.COLUMN_ID_CARD + " = " + c.getString(cIndex) + 
-                    ", " + Transaction.COLUMN_DATE + " = " + c.getString(dIndex) + 
-                    ", " + Transaction.COLUMN_AMOUNT + " = " + c.getString(aIndex) + 
-                    ", " + Transaction.COLUMN_BALANCE + " = " + c.getString(bIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        transactionImpl.close();
+        Log.d(LOG_TAG, "--- ID=" + id + " ---");
+        
+        ArrayList<Transaction> transactions;
+        if (id < 1) transactions = transactionImpl.getAllTransaction();
+        else transactions = transactionImpl.getTransactionsByIDCard(id);
+        
+        for (Transaction t : transactions) {
+                Log.d(LOG_TAG, "ID = " + t.getId()+ 
+                    ", " + Transaction.COLUMN_ID_CARD + " = " + t.getIdCard()+ 
+                    ", " + Transaction.COLUMN_DATE + " = " + t.getDateSQL()+ 
+                    ", " + Transaction.COLUMN_AMOUNT + " = " + t.getAmount()+ 
+                    ", " + Transaction.COLUMN_BALANCE + " = " + t.getBalace());
+        }
+        
+        if (transactions.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
     
     private void testRegex(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Regex.TABLE_NAME + ": ---");
-        regexImpl.open();
-        Cursor c = (id < 1) ? regexImpl.getAllRegex(): regexImpl.getRegexByID(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Regex.COLUMN_ID);
-            int phIndex = c.getColumnIndex(Regex.COLUMN_ID_BANK);
-            int bIndex = c.getColumnIndex(Regex.COLUMN_REGEX);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + Regex.COLUMN_ID_BANK + " = " + c.getString(phIndex) + 
-                    ", " + Regex.COLUMN_REGEX + " = " + c.getString(bIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        regexImpl.close();
+        Log.d(LOG_TAG, "--- ID=" + id + " ---");
+        
+        ArrayList<Regex> regexs = new ArrayList<Regex>();
+        if (id < 1) regexs = regexImpl.getAllRegex();
+        else regexs.add(regexImpl.getRegexByID(id));
+        
+        for (Regex r : regexs) {
+            Log.d(LOG_TAG, "ID = " + r.getId()+ 
+                ", " + Regex.COLUMN_ID_BANK + " = " + r.getIdBank()+ 
+                ", " + Regex.COLUMN_REGEX + " = " + r.getRegex());
+        }
+        
+        if (regexs.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
     
     private void testBank(int id) {
         Log.d(LOG_TAG, "--- Rows in " + Bank.TABLE_NAME + ": ---");
         Log.d(LOG_TAG, "--- ID=" + id + " ---");
-        bankImpl.open();
-        Cursor c = (id < 1) ? bankImpl.getAllBanks(): bankImpl.getBankByID(id);
-        if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Bank.COLUMN_ID);
-            int nIndex = c.getColumnIndex(Bank.COLUMN_NAME);
-            int dIndex = c.getColumnIndex(Bank.COLUMN_DESCRIPTION);
-
-            do {
-                Log.d(LOG_TAG, "ID = " + c.getInt(idIndex) + 
-                    ", " + Bank.COLUMN_NAME + " = " + c.getString(nIndex) + 
-                    ", " + Bank.COLUMN_DESCRIPTION + " = " + c.getString(dIndex));
-            } while (c.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        bankImpl.close();
+        
+        ArrayList<Bank> banks = new ArrayList<Bank>();
+        if (id < 1) banks = bankImpl.getAllBanks();
+        else banks.add(bankImpl.getBankByID(id));
+        
+        for (Bank b : banks) {
+            Log.d(LOG_TAG, "ID = " + b.getId()+ 
+                ", " + Bank.COLUMN_NAME + " = " + b.getName()+ 
+                ", " + Bank.COLUMN_DESCRIPTION + " = " + b.getDescription());
+        }
+        
+        if (banks.isEmpty()) Log.d(LOG_TAG, "0 rows");
     }
-    
     
     private void addData() {
         String[] sms_from = {
@@ -684,7 +650,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*10*/      "Bank",
 /*11*/      "Bank",
 /*12*/      "Bank",
-/*13*/      "Raiffeisen"
+/*13*/      "Raiffeisen",
+/*14*/      "Raiffeisen"
         };
         String[] sms_number = {
 /*1*/       "Raiffeisen",
@@ -699,7 +666,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*10*/      "Bank",
 /*11*/      "Bank",
 /*12*/      "Bank",
-/*13*/      "Raiffeisen"
+/*13*/      "Raiffeisen",
+/*14*/      "Raiffeisen"
         };
         String[] sms_body = {
 /*1*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:396.70 RUR Data:10/10/2014; Dostupny Ostatok: 135983.86 RUR. Raiffeisenbank", 
@@ -714,7 +682,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*10*/      "05.09.14 15:02:56 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 103646,57 RUR",
 /*11*/      "01.10.14 14:36:41 KAPTA 4860*6650 POPOLNENIE +   23577,91 RUR   / DOSTUPNO 127224,48 RUR",
 /*12*/      "07.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR",
-/*13*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96311.07 RUR. Raiffeisenbank"
+/*13*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96311.07 RUR. Raiffeisenbank",
+/*14*/      "Balans vashey karty *9548 popolnilsya 12/11/2014 na 80000.00 RUR. Dostupny ostatok: 135535.76 RUR. Raiffeisenbank"
         };
         String[] time = {
 /*1*/       "2014/10/10 15:12:56",
@@ -729,7 +698,8 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*10*/      "2014/09/05 03:03:27",
 /*11*/      "2014/10/01 03:21:41",
 /*12*/      "2014/10/07 03:06:15",
-/*13*/      "2014/10/16 16:09:32"
+/*13*/      "2014/10/16 16:09:32",
+/*14*/      "2014/11/12 21:14:35"
         };
         
         for (int i=0; i<sms_from.length; i++) {
@@ -747,5 +717,46 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
             } catch (ParseException ex) {
             }
         }
+    }
+    
+    private void readSms(String address) {
+        Log.d(LOG_TAG, "Start read sms");
+        Uri uri = Uri.parse("content://sms/inbox");
+        String[] fields = new String[] { "_id", 
+                                         "address", 
+                                         "person", 
+                                         "body", 
+                                         "date"
+                                       };
+        
+        Cursor c = getContentResolver().query(  uri, 
+                                                fields, 
+                                                "address=?",
+                                                new String[] { address },
+                                                "date desc");
+        Log.d(LOG_TAG, "Cursor count:" + c.getCount());
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(fields[0]);
+            int aIndex = c.getColumnIndex(fields[1]);
+            int pIndex = c.getColumnIndex(fields[2]);
+            int bIndex = c.getColumnIndex(fields[3]);
+            int dIndex = c.getColumnIndex(fields[4]);
+            
+            do {
+                Log.d(LOG_TAG, "id:"+c.getInt(idIndex)
+                        +"; address:"+c.getString(aIndex)
+                        +"; person:"+c.getString(pIndex)
+                        +"; body:"+c.getString(bIndex)
+                        +"; date:"+c.getString(dIndex));
+            } while (c.moveToNext());
+        }
+        Log.d(LOG_TAG, "Stop read sms");
+//        CursorLoader cl = new CursorLoader(this,
+//                Uri.parse("content://sms/inbox"), 
+//                null, 
+//                null, 
+//                null, 
+//                null);
+        
     }
 }

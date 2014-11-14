@@ -41,6 +41,7 @@
     <string name="button_regex">Regex</string>
     <string name="button_bankName">Наименование банка</string>
     <string name="button_add_test_data">Добавить данные</string>
+    <string name="button_read_sms">Чтение смс</string>
     <!-- <string name="button_"></string> -->
     
 </resources>

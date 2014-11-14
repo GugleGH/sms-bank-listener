@@ -9,11 +9,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import ru.nosov.SMSreader.db.Regex;
 import ru.nosov.SMSreader.db.DBHelper;
 
 /**
- * Тело сообшения.
+ * Регулярное выражение.
  * @author Носов А.В.
  */
 public class RegexImpl {
@@ -32,21 +33,48 @@ public class RegexImpl {
     }
     
     /**
-     * Возвращает все телефоны в базе.
-     * @return список телефонов
+     * Возвращает курсор на список всех регулярных выражений в базе.
+     * @return курсор на список
      */
-    public Cursor getAllRegex() {
+    public Cursor getCursorAllRegex() {
         Cursor cursor = database.query(Regex.TABLE_NAME, 
                 null, null, null, null, null, null);
         return cursor;
     }
     
     /**
-     * Возвращает тело сообщения по его идентификатору.
-     * @param id идентификатор сообщения
-     * @return тело сообщения
+     * Возвращает список всех регулярных выражений в базе.
+     * @return список всех регулярных выражений
      */
-    public Cursor getRegexByID(int id) {
+    public ArrayList<Regex> getAllRegex() {
+        ArrayList<Regex> regexs = new ArrayList<Regex>();
+        
+        this.open();
+        Cursor c = getCursorAllRegex();
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Regex.COLUMN_ID);
+            int phIndex = c.getColumnIndex(Regex.COLUMN_ID_BANK);
+            int bIndex = c.getColumnIndex(Regex.COLUMN_REGEX);
+            
+            do {
+                Regex t = new Regex();
+                t.setId(c.getInt(idIndex));
+                t.setIdBank(c.getInt(phIndex));
+                t.setRegex(c.getString(bIndex));
+                regexs.add(t);
+            } while (c.moveToNext());
+        }
+        this.close();
+        
+        return regexs;
+    }
+    
+    /**
+     * Возвращает курсор на регулярное выражение для тела сообщения по его идентификатору.
+     * @param id идентификатор сообщения
+     * @return курсор на регулярное выражение
+     */
+    public Cursor getCursorRegexByID(int id) {
         String[] fields = new String[] { Regex.COLUMN_ID, 
                                          Regex.COLUMN_ID_BANK,
                                          Regex.COLUMN_REGEX
@@ -57,6 +85,30 @@ public class RegexImpl {
                                Regex.COLUMN_ID + "=?",
                                new String[] { String.valueOf(id) },
                                null, null, null, null);
+    }
+    
+    /**
+     * Возвращает курсор на регулярное выражение для тела сообщения по его идентификатору.
+     * @param id идентификатор сообщения
+     * @return курсор на регулярное выражение
+     */
+    public Regex getRegexByID(int id) {
+        Regex regex = new Regex();
+        
+        this.open();
+        Cursor c = getCursorRegexByID(id);
+        if (c.moveToFirst()) {
+            int idIndex = c.getColumnIndex(Regex.COLUMN_ID);
+            int phIndex = c.getColumnIndex(Regex.COLUMN_ID_BANK);
+            int bIndex = c.getColumnIndex(Regex.COLUMN_REGEX);
+            
+            regex.setId(c.getInt(idIndex));
+            regex.setIdBank(c.getInt(phIndex));
+            regex.setRegex(c.getString(bIndex));
+        }
+        this.close();
+        
+        return regex;
     }
     
     /**
