@@ -112,7 +112,6 @@ public class CleaningBDService extends Service {
         if ( (transactions.size() == 1) && 
              validateLastDayOfMonth(transactions.get(0)) ) return;
         
-        
         TransactionImpl transactionImpl = new TransactionImpl(this);
         transactionImpl.open();
         for (Transaction t : transactions) {
@@ -124,7 +123,10 @@ public class CleaningBDService extends Service {
 //        Log.d(LOG_TAG, "Последний:" + t.getDateSQL() + "  | " + Util.formatDateToSQL(t.getDateTime()));
         Calendar c = Util.getLastDayOfMonth(t.getDateTime());
         t.setDateSQL(Util.formatCalendarToSQL(c));
-//        Log.d(LOG_TAG, "Новая дата:" + t.getDateSQL() + "; CID:" + t.getIdCard());
+        float amount = amountMonth(transactions.get(0), transactions.get(transactions.size()-1));
+        t.setAmount(amount);
+        Log.d(LOG_TAG, "Новая дата:" + t.getDateSQL() + "; CID:" + t.getIdCard()
+                       + " ; Затраты:" + String.valueOf(amount));
         transactionImpl.addTransaction(t);
         
         transactionImpl.close();
@@ -162,6 +164,19 @@ public class CleaningBDService extends Service {
                 + Util.formatCalendarToSQL(next) + " / "
                 + next.getTime().equals(start.getTime()));
         return Util.formatCalendarToSQL(start).equals(Util.formatCalendarToSQL(next));
+    }
+    
+    /**
+     * Расчет общих затрат в месяце.
+     * @param start первая транзакция
+     * @param end последняя транзакция
+     * @return сумма затрат
+     */
+    private float amountMonth(Transaction start, Transaction end) {
+        float as = start.getBalace();
+        float ae = end.getBalace();
+        
+        return as - ae;
     }
     
     @Override

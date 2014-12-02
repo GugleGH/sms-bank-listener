@@ -51,9 +51,11 @@ public class SettingsImpl {
         this.open();
         Cursor c = getCursorSettings();
         if (c.moveToFirst()) {
-            int bInd = c.getColumnIndex(Settings.COLUMN_BILLNING);
+            int bInd = c.getColumnIndex(Settings.COLUMN_BILLING);
+            int lbInd = c.getColumnIndex(Settings.COLUMN_LAST_BILLING);
             
             settings.setBilling(c.getInt(bInd) == 1);
+            settings.setLastBilling(c.getString(lbInd));
         }
         this.close();
         
@@ -65,10 +67,12 @@ public class SettingsImpl {
      * @param settings настройки
      */
     public void updateSettings(Settings settings) {
-        if ( settings == null) return;
+        if (settings == null) return;
         
         ContentValues cv = new ContentValues();
-        cv.put(Settings.COLUMN_BILLNING, (settings.isBilling() ? 1 : 0) );
+        cv.put(Settings.COLUMN_BILLING, (settings.isBilling() ? 1 : 0) );
+        if (settings.getLastBilling() != null)
+            cv.put(Settings.COLUMN_LAST_BILLING, settings.getLastBilling());
         database.insert(Settings.TABLE_NAME, null, cv);
     }
     

@@ -11,8 +11,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import java.util.Calendar;
 import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.types.TypeBank;
+import ru.nosov.SMSreader.utils.Util;
 
 /**
  * Доступ к БД.
@@ -283,10 +285,14 @@ public class DBHelper extends SQLiteOpenHelper {
     
     private void createTableSettingsV2(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + Settings.TABLE_NAME + " ( "
-            + Settings.COLUMN_BILLNING + " INTEGER NOT NULL" + " );");
+            + Settings.COLUMN_LAST_BILLING + " TEXT NOT NULL, "
+            + Settings.COLUMN_BILLING + " INTEGER NOT NULL" + " );");
+        
+        Calendar c = Calendar.getInstance();
         
         ContentValues cv = new ContentValues();
-        cv.put(Settings.COLUMN_BILLNING, "0");
+        cv.put(Settings.COLUMN_BILLING, "false");
+        cv.put(Settings.COLUMN_LAST_BILLING, Util.formatCalendarToSQL(c));
         db.insert(Settings.TABLE_NAME, null, cv);
     }
     

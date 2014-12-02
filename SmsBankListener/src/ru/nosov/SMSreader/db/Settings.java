@@ -15,10 +15,14 @@ public class Settings {
     /** Имя таблицы. */
     public static final String TABLE_NAME = "settings";
     /** Билинг. */
-    public static final String COLUMN_BILLNING = "billing";
+    public static final String COLUMN_BILLING = "billing";
+    /** Дата последнего билинга. */
+    public static final String COLUMN_LAST_BILLING = "lastBilling";
     
     /** Билинг. */
     private boolean billing = false;
+    /** Дата последнеого билинга. */
+    private String lastBilling;
     // End of variables declaration
     
     public Settings() {
@@ -40,5 +44,21 @@ public class Settings {
      */
     public void setBilling(boolean billing) {
         this.billing = billing;
+    }
+
+    /**
+     * Возвращает дату последнего билинга.
+     * @return дата билинга
+     */
+    public String getLastBilling() {
+        return lastBilling;
+    }
+
+    /**
+     * Устанавливает дату послденего билинга.
+     * @param lastBilling дата билинга
+     */
+    public void setLastBilling(String lastBilling) {
+        this.lastBilling = lastBilling;
     }
 }

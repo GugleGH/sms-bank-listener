@@ -519,7 +519,7 @@ public class SmsService extends Service {
             .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT))
             .setWhen(System.currentTimeMillis()) //отображаемое время уведомления
             .setContentTitle("SmsListener") //заголовок уведомления
-            .setDefaults(Notification.DEFAULT_ALL); // звук, вибро и диодный индикатор выставляются по умолчанию
+            .setDefaults(Notification.DEFAULT_VIBRATE); // звук, вибро и диодный индикатор
         
 //        Notification notification = nb.getNotification(); //генерируем уведомление
         Notification nn = nb.build();
@@ -631,16 +631,6 @@ public class SmsService extends Service {
         if (balance != null) return balance;
         
         return null;
-//        try {
-//            String regex = "(?:Dostupny Ostatok: " + REGEX_MANY_TCHK + " RUR)";
-//            Pattern prf2 = Pattern.compile(regex);
-//            Matcher matcher = prf2.matcher(sms);
-//            if (matcher.find())
-//                return matcher.group(1);
-//            return null;
-//        } catch (IndexOutOfBoundsException ex) {
-//            return null;
-//        }
     }
     
     /**
@@ -707,16 +697,6 @@ public class SmsService extends Service {
         if (card != null) return card;
         
         return null;
-//        try {
-//            String regex = "(?:Karta " + REGEX_CARD_1 + ";)";
-//            Pattern prf2 = Pattern.compile(regex);
-//            Matcher matcher = prf2.matcher(sms);
-//            if (matcher.find())
-//                return matcher.group(1);
-//            return null;
-//        } catch (IndexOutOfBoundsException ex) {
-//            return null;
-//        }
     }
     
     /**

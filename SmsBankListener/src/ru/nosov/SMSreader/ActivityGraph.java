@@ -8,16 +8,15 @@ package ru.nosov.SMSreader;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import org.achartengine.ChartFactory;
@@ -214,10 +213,17 @@ public class ActivityGraph extends Activity {
             for (Transaction t : ts) {
                 double d = t.getDateTime().getTime();
 //                double b = t.getBalace();
-                String res = dateFormat.format(new Date((long)d)) + 
+                
+                String annot;
+                if (validateLastDayOfMonth(t))
+                    annot = t.getAmount() + 
+                        "\n(" + t.getBalace() + ")";
+                else 
+                    annot = dateFormat.format(new Date((long)d)) + 
                         "\n(" + t.getAmount() + ")";
+                
                 series.add(d, t.getBalace());
-                series.addAnnotation(res, d, t.getBalace());
+                series.addAnnotation(annot, d, t.getBalace());
             }
             String desc = ba.getName() + " / " + ts.get(ts.size()-1).getBalace();
             series.setTitle(desc);
@@ -238,4 +244,21 @@ public class ActivityGraph extends Activity {
         return graphicalView;
     }
     
+    
+    /**
+     * Сверяет год/месяц/день/время в транзакции с последним днем месяца.
+     * @param t транзакция
+     * @return <b>true</b> - год/месяц/день/время совпали,
+     * <b>false</b> - год/месяц/день/время НЕ совпали.
+     */
+    private boolean validateLastDayOfMonth(Transaction t) {
+        Calendar start = Util.getLastDayOfMonth(t.getDateTime());
+        Calendar next = Calendar.getInstance();
+        next.setTime(t.getDateTime());
+        Log.d(LOG_TAG, "Последний день/Дата внутри: " 
+                + Util.formatCalendarToSQL(start) + " | " 
+                + Util.formatCalendarToSQL(next) + " / "
+                + next.getTime().equals(start.getTime()));
+        return Util.formatCalendarToSQL(start).equals(Util.formatCalendarToSQL(next));
+    }
 }
