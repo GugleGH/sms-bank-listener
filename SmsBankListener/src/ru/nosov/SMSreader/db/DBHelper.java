@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
-import ru.nosov.SMSreader.receiver.TypeBank;
+import ru.nosov.SMSreader.types.TypeBank;
 
 /**
  * Доступ к БД.
@@ -39,7 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /** Имя БД. */
     public static final String DB_NAME = "dbSMSReader";
     /** Версия БД. */
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     
     /** Регулярное выражение пробела или начала строки. */
     private static String REGEX_SPASE = "(?:^|\\s)";
@@ -104,6 +104,7 @@ public class DBHelper extends SQLiteOpenHelper {
         createTableCard(db);
         createTableRegex(db);
         createTableRegexTransaction(db);
+        createTableSettingsV2(db);
         Log.i(LOG_TAG, "Create All Table.");
         
         // Мои данные
@@ -122,12 +123,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        switch (oldVersion) {
-            case 1:
-//                upgradeRegex1To2(db);
-//                Log.i(LOG_TAG, "Обновление БД с версии 1 на версию 2 прошло успешно.");
-                break;
-            default:
+        while (oldVersion <= newVersion) {
+            switch (oldVersion) {
+                case 1:
+                    upgradeDB1To2(db);
+                    Log.i(LOG_TAG, "Обновление БД с версии 1 на версию 2 прошло успешно.");
+                    break;
+                default:
+            }
+            oldVersion ++;
         }
     }
     
@@ -273,12 +277,34 @@ public class DBHelper extends SQLiteOpenHelper {
             + Transaction.COLUMN_ID_CARD + " INTEGER NOT NULL, "
             + Transaction.COLUMN_DATE + " TEXT NOT NULL, "
             + Transaction.COLUMN_AMOUNT + " REAL NOT NULL, "
-            + Transaction.COLUMN_BALANCE + " REAL NOT NULL" + " );");
+            + Transaction.COLUMN_BALANCE + " REAL NOT NULL" 
+            + Transaction.COLUMN_DESCRIPTION + " TEXT" + " );");
+    }
+    
+    private void createTableSettingsV2(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + Settings.TABLE_NAME + " ( "
+            + Settings.COLUMN_BILLNING + " INTEGER NOT NULL" + " );");
+        
+        ContentValues cv = new ContentValues();
+        cv.put(Settings.COLUMN_BILLNING, "0");
+        db.insert(Settings.TABLE_NAME, null, cv);
     }
     
     /* ---------- ---------- ---------- ---------- ---------- */
     
-    
+    private void upgradeDB1To2(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            createTableSettingsV2(db);
+            db.execSQL("ALTER TABLE " + Transaction.TABLE_NAME 
+                    + " ADD COLUMN " 
+                    + Transaction.COLUMN_DESCRIPTION
+                    + " TEXT" + " );");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
     
     /* ---------- ---------- ---------- ---------- ---------- */
     

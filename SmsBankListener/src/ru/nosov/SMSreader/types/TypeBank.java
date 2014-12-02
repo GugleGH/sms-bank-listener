@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.nosov.SMSreader.receiver;
+package ru.nosov.SMSreader.types;
 
 import java.io.Serializable;
 

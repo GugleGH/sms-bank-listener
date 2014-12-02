@@ -9,13 +9,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Transaction;
+import ru.nosov.SMSreader.utils.Util;
 
 /**
  * Операция.
@@ -100,23 +98,29 @@ public class TransactionImpl {
     /**
      * Добавляет операцию в базу.
      * @param transaction операция
+     * @return <b>true</b> - операция добавленна, <br>
+     * <b>false</b> - операция не добавленна
      */
-    public void addTransaction(Transaction transaction) {
-        if ( (transaction.getDateSQL()== null) ||
-             (transaction.getDateSQL().equals("")) ) return;
+    public boolean addTransaction(Transaction transaction) {
+        if ( (transaction == null) ||
+             (transaction.getDateSQL() == null) ||
+             (transaction.getDateSQL().equals("")) ) return false;
         
         CardImpl cardImpl = new CardImpl(context);
         cardImpl.open();
         boolean b = cardImpl.isCardByID(transaction.getIdCard());
         cardImpl.close();
-        if (!b) return;
+        if (!b) return false;
         
+//        this.open();
         ContentValues cv = new ContentValues();
         cv.put(Transaction.COLUMN_ID_CARD, transaction.getIdCard());
         cv.put(Transaction.COLUMN_DATE, transaction.getDateSQL());
         cv.put(Transaction.COLUMN_AMOUNT, transaction.getAmount());
         cv.put(Transaction.COLUMN_BALANCE, transaction.getBalace());
         database.insert(Transaction.TABLE_NAME, null, cv);
+//        this.close();
+        return true;
     }
     
     /**
@@ -157,18 +161,13 @@ public class TransactionImpl {
             int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
 
             do {
-                try {
-                    Transaction tr = new Transaction();
-                    tr.setId(c.getInt(idIndex));
-                    tr.setDateSQL(c.getString(dIndex));
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                    tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
-                    tr.setAmount(c.getFloat(aIndex));
-                    tr.setBalace(c.getFloat(bIndex));
-                    transactions.add(tr);
-                } catch (ParseException ex) {
-                    Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
-                }
+                Transaction tr = new Transaction();
+                tr.setId(c.getInt(idIndex));
+                tr.setDateSQL(c.getString(dIndex));
+                tr.setDateTime(Util.formatSQLToDate(c.getString(dIndex)).getTime());
+                tr.setAmount(c.getFloat(aIndex));
+                tr.setBalace(c.getFloat(bIndex));
+                transactions.add(tr);
             } while (c.moveToNext());
         }
         this.close();
@@ -195,18 +194,14 @@ public class TransactionImpl {
                 int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
 
                 do {
-                    try {
-                        Transaction tr = new Transaction();
-                        tr.setId(c.getInt(idIndex));
-                        tr.setDateSQL(c.getString(dIndex));
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                        tr.setDateTime(dateFormat.parse(c.getString(dIndex)));
-                        tr.setAmount(c.getFloat(aIndex));
-                        tr.setBalace(c.getFloat(bIndex));
-                        transactions.add(tr);
-                    } catch (ParseException ex) {
-                        Log.e(LOG_TAG, c.getString(dIndex) + " --> " + ex.getMessage());
-                    }
+                    Transaction tr = new Transaction();
+                    tr.setId(c.getInt(idIndex));
+                    tr.setIdCard(card.getId());
+                    tr.setDateSQL(c.getString(dIndex));
+                    tr.setDateTime(Util.formatSQLToDate(c.getString(dIndex)).getTime());
+                    tr.setAmount(c.getFloat(aIndex));
+                    tr.setBalace(c.getFloat(bIndex));
+                    transactions.add(tr);
                 } while (c.moveToNext());
             }
         }

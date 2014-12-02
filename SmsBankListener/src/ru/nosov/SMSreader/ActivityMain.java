@@ -5,7 +5,6 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,14 +22,13 @@ import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Phone;
 import ru.nosov.SMSreader.db.Profile;
 import ru.nosov.SMSreader.db.SmsMessage;
-import ru.nosov.SMSreader.db.Transaction;
 import ru.nosov.SMSreader.db.adapters.AdapterProfile4Main;
 import ru.nosov.SMSreader.db.impl.PhoneImpl;
 import ru.nosov.SMSreader.db.impl.ProfileImpl;
 import ru.nosov.SMSreader.db.impl.SmsMessageImpl;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
-import ru.nosov.SMSreader.receiver.CleaningBDService;
-import ru.nosov.SMSreader.receiver.SmsService;
+import ru.nosov.SMSreader.services.CleaningBDService;
+import ru.nosov.SMSreader.services.SmsService;
 
 /**
  * http://startandroid.ru/ru/uroki/vse-uroki-spiskom.html
@@ -279,7 +277,8 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
             smsIntent.putExtra(SmsService.SMS_ORIGINATING_ADDRESS, smsMessage.getAddress());
             smsIntent.putExtra(SmsService.SMS_BODY, smsMessage.getBody());
             smsIntent.putExtra(SmsService.SMS_TIME_SERVICE_CENTRE, smsMessage.getDate());
-
+            smsIntent.putExtra(SmsService.SMS_NOTIFICATION, false);
+            
             this.startService(smsIntent);
         }
         Log.d(LOG_TAG, "r9548:" + r9548+"; r2643:" + r2643 + "; all:" + String.valueOf(r9548+r2643));

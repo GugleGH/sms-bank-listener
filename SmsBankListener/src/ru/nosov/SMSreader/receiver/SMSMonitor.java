@@ -5,6 +5,7 @@
  */
 package ru.nosov.SMSreader.receiver;
 
+import ru.nosov.SMSreader.services.SmsService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

@@ -7,7 +7,6 @@ package ru.nosov.SMSreader;
 
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -49,7 +48,7 @@ import ru.nosov.SMSreader.db.loaders.CursorLoaderCard;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderPhone;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderTransaction;
-import ru.nosov.SMSreader.receiver.SmsService;
+import ru.nosov.SMSreader.services.SmsService;
 
 /**
  * Тестовая панель для БД.
@@ -643,15 +642,22 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*3*/       "Raiffeisen",
 /*4*/       "Raiffeisen",
 /*5*/       "Raiffeisen",
-/*6*/       "Bank",
-/*7*/       "Bank",
-/*8*/       "Bank",
-/*9*/       "Bank",
+/*6*/       "Raiffeisen",
+/*7*/       "Raiffeisen",
+/*8*/       "Raiffeisen",
+/*9*/       "Raiffeisen",
 /*10*/      "Bank",
 /*11*/      "Bank",
 /*12*/      "Bank",
-/*13*/      "Raiffeisen",
-/*14*/      "Raiffeisen"
+/*13*/      "Bank",
+/*14*/      "Bank",
+/*15*/      "Bank",
+/*16*/      "Bank",
+/*17*/      "Bank",
+/*18*/      "Bank",
+/*19*/      "Raiffeisen",
+/*20*/      "Raiffeisen",
+/*21*/      "Raiffeisen"
         };
         String[] sms_number = {
 /*1*/       "Raiffeisen",
@@ -659,47 +665,68 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*3*/       "Raiffeisen",
 /*4*/       "Raiffeisen",
 /*5*/       "Raiffeisen",
-/*6*/       "Bank",
-/*7*/       "Bank",
-/*8*/       "Bank",
-/*9*/       "Bank",
+/*6*/       "Raiffeisen",
+/*7*/       "Raiffeisen",
+/*8*/       "Raiffeisen",
+/*9*/       "Raiffeisen",
 /*10*/      "Bank",
 /*11*/      "Bank",
 /*12*/      "Bank",
-/*13*/      "Raiffeisen",
-/*14*/      "Raiffeisen"
+/*13*/      "Bank",
+/*14*/      "Bank",
+/*15*/      "Bank",
+/*16*/      "Bank",
+/*17*/      "Bank",
+/*18*/      "Bank",
+/*19*/      "Raiffeisen",
+/*20*/      "Raiffeisen",
+/*21*/      "Raiffeisen"
         };
         String[] sms_body = {
-/*1*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:396.70 RUR Data:10/10/2014; Dostupny Ostatok: 135983.86 RUR. Raiffeisenbank", 
-/*2*/       "Karta *9548; Provedena tranzakcija:LU/ITUNES.COM/ITUNES.COM/BILL; Summa:169.00 RUR Data:15/10/2014; Dostupny Ostatok: 98304.54 RUR. Raiffeisenbank", 
-/*3-*/      "Planovoe spisanie:35630.32 RUR. Balans scheta karty *9548 na 15/10/2014: 98304.54 RUR. Raiffeisenbank",
-/*4*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/PODRUZHKA 166; Summa:1371.39 RUR Data:15/10/2014; Dostupny Ostatok: 96933.15 RUR. Raiffeisenbank", 
-/*5*/       "Povedeno po schety 15/10/2014: - 35630.32 RUR. Balans scheta karty *9548 na 16/10/2014: 96933.15 RUR. Raiffeisenbank",
-/*6*/       "01.08.14 12:39:14 KAPTA 4860*6650 POPOLNENIE +   14871,39 RUR   / DOSTUPNO 127186,1 RUR",
-/*7*/       "09.08.14 15:10:07 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 45 MOSCOW RUS / DOSTUPNO 47186,1 RUR",
-/*8*/       "20.08.14 12:26:00 KAPTA 4860*6650 POPOLNENIE +   32184 RUR   / DOSTUPNO 79370,1 RUR",
-/*9*/       "01.09.14 13:07:38 KAPTA 4860*6650 POPOLNENIE +   104276,47 RUR   / DOSTUPNO 183646,57 RUR",
-/*10*/      "05.09.14 15:02:56 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 103646,57 RUR",
-/*11*/      "01.10.14 14:36:41 KAPTA 4860*6650 POPOLNENIE +   23577,91 RUR   / DOSTUPNO 127224,48 RUR",
-/*12*/      "07.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR",
-/*13*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96311.07 RUR. Raiffeisenbank",
-/*14*/      "Balans vashey karty *9548 popolnilsya 12/11/2014 na 80000.00 RUR. Dostupny ostatok: 135535.76 RUR. Raiffeisenbank"
+/*1*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:396.70 RUR Data:05/09/2014; Dostupny Ostatok: 135983.86 RUR. Raiffeisenbank", 
+/*2*/       "Karta *9548; Provedena tranzakcija:LU/ITUNES.COM/ITUNES.COM/BILL; Summa:169.00 RUR Data:11/09/2014; Dostupny Ostatok: 98304.54 RUR. Raiffeisenbank", 
+/*3-*/       "Planovoe spisanie:35630.32 RUR. Balans scheta karty *9548 na 13/09/2014: 98304.54 RUR. Raiffeisenbank",
+/*4*/       "Povedeno po schety 20/10/2014: - 35630.32 RUR. Balans scheta karty *9548 na 21/09/2014: 96933.15 RUR. Raiffeisenbank",
+/*5*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:396.70 RUR Data:10/10/2014; Dostupny Ostatok: 135983.86 RUR. Raiffeisenbank", 
+/*6*/       "Karta *9548; Provedena tranzakcija:LU/ITUNES.COM/ITUNES.COM/BILL; Summa:169.00 RUR Data:15/10/2014; Dostupny Ostatok: 98304.54 RUR. Raiffeisenbank", 
+/*7-*/       "Planovoe spisanie:35630.32 RUR. Balans scheta karty *9548 na 17/10/2014: 98304.54 RUR. Raiffeisenbank",
+/*8*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/PODRUZHKA 166; Summa:1371.39 RUR Data:18/10/2014; Dostupny Ostatok: 96933.15 RUR. Raiffeisenbank", 
+/*9*/       "Povedeno po schety 20/10/2014: - 35630.32 RUR. Balans scheta karty *9548 na 20/10/2014: 96933.15 RUR. Raiffeisenbank",
+/*10*/      "01.08.14 12:39:14 KAPTA 4860*6650 POPOLNENIE +   14871,39 RUR   / DOSTUPNO 127186,1 RUR",
+/*11*/      "09.08.14 15:10:07 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 45 MOSCOW RUS / DOSTUPNO 47186,1 RUR",
+/*12*/      "13.08.14 15:10:07 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 45 MOSCOW RUS / DOSTUPNO 30186,1 RUR",
+/*13*/      "20.08.14 12:26:00 KAPTA 4860*6650 POPOLNENIE +   32184 RUR   / DOSTUPNO 79370,1 RUR",
+/*14*/      "01.09.14 13:07:38 KAPTA 4860*6650 POPOLNENIE +   104276,47 RUR   / DOSTUPNO 183646,57 RUR",
+/*15*/      "05.09.14 15:02:56 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 103646,57 RUR",
+/*16*/      "01.10.14 14:36:41 KAPTA 4860*6650 POPOLNENIE +   23577,91 RUR   / DOSTUPNO 127224,48 RUR",
+/*17*/      "19.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR",
+/*18*/      "07.11.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 42224,48 RUR",
+/*19*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96311.07 RUR. Raiffeisenbank",
+/*20*/      "Balans vashey karty *9548 popolnilsya 12/11/2014 na 80000.00 RUR. Dostupny ostatok: 135535.76 RUR. Raiffeisenbank",
+/*21*/      "Karta *2643; Pokupka: RU/BALASHIKHA/DIKSI; 537.47 RUR; Data: 23/11/2014; Dostupny Ostatok: 94636.23 RUR. Raiffeisenbank"
         };
         String[] time = {
-/*1*/       "2014/10/10 15:12:56",
-/*2*/       "2014/10/15 07:49:39",
-/*3*/       "2014/10/15 09:06:32",
-/*4*/       "2014/10/15 14:38:24",
-/*5*/       "2014/10/16 09:08:07",
-/*6*/       "2014/08/01 12:40:52",
-/*7*/       "2014/08/09 03:10:31",
-/*8*/       "2014/08/20 12:28:55",
-/*9*/       "2014/09/01 01:38:54",
-/*10*/      "2014/09/05 03:03:27",
-/*11*/      "2014/10/01 03:21:41",
-/*12*/      "2014/10/07 03:06:15",
-/*13*/      "2014/10/16 16:09:32",
-/*14*/      "2014/11/12 21:14:35"
+/*1*/       "2014/09/05 15:12:56",
+/*2*/       "2014/09/09 07:49:39",
+/*3-*/       "2014/09/13 09:06:32",
+/*4*/       "2014/09/21 14:38:24",
+/*5*/       "2014/10/10 15:12:56",
+/*6*/       "2014/10/15 07:49:39",
+/*7-*/       "2014/10/17 09:06:32",
+/*8*/       "2014/10/18 14:38:24",
+/*9*/       "2014/10/20 09:08:07",
+/*10*/      "2014/08/01 12:40:52",
+/*11*/      "2014/08/09 03:10:31",
+/*12*/      "2014/08/13 03:10:31",
+/*13*/      "2014/08/20 12:28:55",
+/*14*/      "2014/09/01 01:38:54",
+/*15*/      "2014/09/05 03:03:27",
+/*16*/      "2014/10/01 03:21:41",
+/*17*/      "2014/10/19 03:06:15",
+/*18*/      "2014/11/07 03:06:15",
+/*19*/      "2014/10/16 16:09:32",
+/*20*/      "2014/11/12 21:14:35",
+/*21*/      "2014/11/23 13:04:10"
         };
         
         for (int i=0; i<sms_from.length; i++) {
@@ -751,12 +778,5 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
             } while (c.moveToNext());
         }
         Log.d(LOG_TAG, "Stop read sms");
-//        CursorLoader cl = new CursorLoader(this,
-//                Uri.parse("content://sms/inbox"), 
-//                null, 
-//                null, 
-//                null, 
-//                null);
-        
     }
 }
