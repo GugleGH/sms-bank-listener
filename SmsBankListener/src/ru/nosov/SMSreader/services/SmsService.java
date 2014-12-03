@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.os.IBinder;
 import android.util.Log;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ru.nosov.SMSreader.ActivityMain;
@@ -22,10 +23,12 @@ import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.Regex;
 import ru.nosov.SMSreader.db.Card;
 import ru.nosov.SMSreader.db.Phone;
+import ru.nosov.SMSreader.db.Settings;
 import ru.nosov.SMSreader.db.Transaction;
 import ru.nosov.SMSreader.db.impl.RegexImpl;
 import ru.nosov.SMSreader.db.impl.CardImpl;
 import ru.nosov.SMSreader.db.impl.PhoneImpl;
+import ru.nosov.SMSreader.db.impl.SettingsImpl;
 import ru.nosov.SMSreader.db.impl.TransactionImpl;
 import ru.nosov.SMSreader.receiver.SmsBody;
 import ru.nosov.SMSreader.utils.Util;
@@ -379,23 +382,49 @@ public class SmsService extends Service {
         if (cards == null) return;
         if (smsBody == null) return;
         
+        Transaction t = null;
         TransactionImpl transactionImpl = new TransactionImpl(this);
         transactionImpl.open();
         for (Card card : cards) {
-            Transaction t = new Transaction();
+            t = new Transaction();
             t.setIdCard(card.getId());
             t.setDateSQL(Util.formatDateToSQL(smsBody.getDateTime()));
+            t.setDateTime(smsBody.getDateTime());
             t.setAmount(smsBody.getAmount());
             t.setBalace(smsBody.getBalance());
             boolean b = transactionImpl.addTransaction(t);
             String msg = Transaction.TABLE_NAME + " add " + card.getCardNumber() +
-                    ": C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
+                    "; C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
                     "; A=" + t.getAmount() + "; B="+ t.getBalace() + 
                     "; " + String.valueOf(b);
             Log.i(LOG_TAG, msg);
             notificationAddData("Добавленно в базу", msg);
         }
         transactionImpl.close();
+        if (t == null) return;
+        validateBilling(t);
+    }
+    
+    /**
+     * Проверка флага, что требуется билинг данных.
+     * @param t транзакция
+     */
+    private void validateBilling(Transaction t) {
+        Calendar first = Calendar.getInstance();
+        Calendar last = Calendar.getInstance();
+        last.setTime(t.getDateTime());
+        if (Util.validateMMYYYY(first, last)) return;
+        
+        SettingsImpl impl = new SettingsImpl(this);
+        Settings s = impl.getSettings();
+        if (!s.isBilling()) return;
+        
+        last = Util.formatSQLToDate(s.getLastBilling());
+        if (Util.validateMMYYYY(first, last)) return;
+        
+        impl.open();
+        impl.updateSettingsBilling(true);
+        impl.close();
     }
     
     /**
@@ -510,6 +539,7 @@ public class SmsService extends Service {
     private void sendNotification(int icon, String msgShort, String msgFull) {
         if (!notification) return;
         Intent notificationIntent = new Intent(this, ActivityMain.class);
+        notificationIntent.putExtra(ActivityMain.ADD_SMS, msgFull);
         
         Notification.Builder nb = new Notification.Builder(this)
             .setSmallIcon(icon)

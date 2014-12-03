@@ -9,6 +9,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.DBHelper;
 import ru.nosov.SMSreader.db.Settings;
 
@@ -19,6 +21,7 @@ import ru.nosov.SMSreader.db.Settings;
 public class SettingsImpl {
     
     // Variables declaration
+    private final String LOG_TAG = LOG_NAME + "SettingsImpl";
     /** Доступ к базовым функциям ОС. */
     private final Context context;
     /** Работа с БД. */
@@ -68,12 +71,35 @@ public class SettingsImpl {
      */
     public void updateSettings(Settings settings) {
         if (settings == null) return;
-        
-        ContentValues cv = new ContentValues();
-        cv.put(Settings.COLUMN_BILLING, (settings.isBilling() ? 1 : 0) );
-        if (settings.getLastBilling() != null)
+        this.open();
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put(Settings.COLUMN_BILLING, (settings.isBilling() ? 1 : 0) );
+            if (settings.getLastBilling() == null) {
+                Log.e(LOG_TAG, "Отлуствует дата билинга");
+                return;
+            }
             cv.put(Settings.COLUMN_LAST_BILLING, settings.getLastBilling());
-        database.insert(Settings.TABLE_NAME, null, cv);
+            database.insert(Settings.TABLE_NAME, null, cv);
+        } finally {
+            this.close();
+        }
+    }
+    
+    /**
+     * Обновление состояния билинга в базе.
+     * @param b billing <b>true</b> - билинг пройден,
+     * <b>false</b> - требуется билинг.
+     */
+    public void updateSettingsBilling(boolean b) {
+        Settings s = getSettings();
+        s.setBilling(b);
+        updateSettings(s);
+//        this.open();
+//        ContentValues cv = new ContentValues();
+//        cv.put(Settings.COLUMN_BILLING, (b ? 1 : 0) );
+//        database.insert(Settings.TABLE_NAME, null, cv);
+//        this.close();
     }
     
     /**

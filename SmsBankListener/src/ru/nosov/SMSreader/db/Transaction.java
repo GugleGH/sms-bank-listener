@@ -35,7 +35,7 @@ public class Transaction implements Comparable<Transaction> {
     private int idCard;
     /** Дата операции. */
     private Date dateTime;
-    /** Дата операции. */
+    /** Дата операции  в формате yyyy-MM-dd hh:mm:ss. */
     private String dateSQL;
     /** Сумма операции. */
     private float amount;
@@ -97,8 +97,8 @@ public class Transaction implements Comparable<Transaction> {
     }
 
     /**
-     * Возвращает дату операции.
-     * @return  дата операции
+     * Возвращает дату операции в формате yyyy-MM-dd hh:mm:ss.
+     * @return дата операции
      */
     public String getDateSQL() {
         return dateSQL;

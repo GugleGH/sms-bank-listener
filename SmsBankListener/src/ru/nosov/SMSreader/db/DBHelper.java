@@ -279,7 +279,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + Transaction.COLUMN_ID_CARD + " INTEGER NOT NULL, "
             + Transaction.COLUMN_DATE + " TEXT NOT NULL, "
             + Transaction.COLUMN_AMOUNT + " REAL NOT NULL, "
-            + Transaction.COLUMN_BALANCE + " REAL NOT NULL" 
+            + Transaction.COLUMN_BALANCE + " REAL NOT NULL, " 
             + Transaction.COLUMN_DESCRIPTION + " TEXT" + " );");
     }
     
@@ -305,7 +305,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + Transaction.TABLE_NAME 
                     + " ADD COLUMN " 
                     + Transaction.COLUMN_DESCRIPTION
-                    + " TEXT" + " );");
+                    + " TEXT" + ";");
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

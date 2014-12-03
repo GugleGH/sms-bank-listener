@@ -47,7 +47,7 @@ public class Settings {
     }
 
     /**
-     * Возвращает дату последнего билинга.
+     * Возвращает дату последнего билинга в формате yyyy-MM-dd hh:mm:ss.
      * @return дата билинга
      */
     public String getLastBilling() {

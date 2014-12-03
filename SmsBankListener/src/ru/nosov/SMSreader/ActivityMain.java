@@ -43,6 +43,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
     // Variables declaration
     public static final String LOG_NAME = "Sms_Bank_listener_";
     public static final String LOG_TAG = LOG_NAME + "ActivityMain";
+    public static final String ADD_SMS = "addsms";
     /** Основная разметка. */
     private LinearLayout layoutLinear;
     /** Список профилей. */
@@ -120,6 +121,8 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
         
         profileImpl.open();
         getLoaderManager().initLoader(DBHelper.LOADER_ID_PROFILE, null, this);
+        
+        checkIntent();
     }
     
     @Override
@@ -150,7 +153,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
+    
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == DBHelper.LOADER_ID_PROFILE)
             return new CursorLoaderProfile(this, profileImpl);
@@ -219,6 +222,21 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
                 startActivity(intent);
             }
         }
+    }
+    
+    /**
+     * Проверяет intent.
+     */
+    private void checkIntent() {
+        Intent intent = getIntent();
+        if (intent == null) return;
+        
+        if (intent.getExtras() == null) return;
+        
+        String addsms = intent.getExtras().getString(ADD_SMS, null);
+        if (addsms == null) return;
+        
+        textView.setText(addsms);
     }
     
     /**

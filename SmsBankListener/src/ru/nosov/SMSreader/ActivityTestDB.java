@@ -691,7 +691,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*6*/       "Karta *9548; Provedena tranzakcija:LU/ITUNES.COM/ITUNES.COM/BILL; Summa:169.00 RUR Data:15/10/2014; Dostupny Ostatok: 98304.54 RUR. Raiffeisenbank", 
 /*7-*/       "Planovoe spisanie:35630.32 RUR. Balans scheta karty *9548 na 17/10/2014: 98304.54 RUR. Raiffeisenbank",
 /*8*/       "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/PODRUZHKA 166; Summa:1371.39 RUR Data:18/10/2014; Dostupny Ostatok: 96933.15 RUR. Raiffeisenbank", 
-/*9*/       "Povedeno po schety 20/10/2014: - 35630.32 RUR. Balans scheta karty *9548 na 20/10/2014: 96933.15 RUR. Raiffeisenbank",
+/*9*/       "Povedeno po schety 20/10/2014: - 35630.32 RUR. Balans scheta karty *9548 na 20/10/2014: 96311.07 RUR. Raiffeisenbank",
 /*10*/      "01.08.14 12:39:14 KAPTA 4860*6650 POPOLNENIE +   14871,39 RUR   / DOSTUPNO 127186,1 RUR",
 /*11*/      "09.08.14 15:10:07 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 45 MOSCOW RUS / DOSTUPNO 47186,1 RUR",
 /*12*/      "13.08.14 15:10:07 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 45 MOSCOW RUS / DOSTUPNO 30186,1 RUR",
@@ -701,7 +701,7 @@ public class ActivityTestDB extends Activity implements LoaderManager.LoaderCall
 /*16*/      "01.10.14 14:36:41 KAPTA 4860*6650 POPOLNENIE +   23577,91 RUR   / DOSTUPNO 127224,48 RUR",
 /*17*/      "19.10.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 47224,48 RUR",
 /*18*/      "07.11.14 15:05:48 KAPTA 4860*6650 NALICHNYE   80000 RUR ZENIT ATM 192 MOSCOW RUS / DOSTUPNO 42224,48 RUR",
-/*19*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96311.07 RUR. Raiffeisenbank",
+/*19*/      "Karta *2643; Provedena tranzakcija:RU/BALASHIKHA/DIKSI; Summa:622.08 RUR Data:16/10/2014; Dostupny Ostatok: 96933.15 RUR. Raiffeisenbank",
 /*20*/      "Balans vashey karty *9548 popolnilsya 12/11/2014 na 80000.00 RUR. Dostupny ostatok: 135535.76 RUR. Raiffeisenbank",
 /*21*/      "Karta *2643; Pokupka: RU/BALASHIKHA/DIKSI; 537.47 RUR; Data: 23/11/2014; Dostupny Ostatok: 94636.23 RUR. Raiffeisenbank"
         };

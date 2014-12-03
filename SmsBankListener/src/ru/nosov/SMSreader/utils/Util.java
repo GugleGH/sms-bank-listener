@@ -149,9 +149,9 @@ public class Util {
     }
     
     /**
-     * 
-     * @param d
-     * @return 
+     * Возвращает календарь с установленны первым днем месяца.
+     * @param d дата
+     * @return календарь с установленным первым днем
      */
     public static Calendar getFirstDayOfMonth(Date d) {
         Calendar c = Calendar.getInstance();
@@ -161,9 +161,9 @@ public class Util {
     }
     
     /**
-     * 
-     * @param c
-     * @return 
+     * Возвращает календарь с установленны первым днем месяца.
+     * @param c календарь
+     * @return календарь с установленным первым днем
      */
     public static Calendar getFirstDayOfMonth(Calendar c) {
         c.set(Calendar.DATE, c.getMinimum(Calendar.DAY_OF_MONTH));
@@ -174,9 +174,9 @@ public class Util {
     }
     
     /**
-     * 
-     * @param d
-     * @return 
+     * Возвращает календарь с установленны последним днем месяца.
+     * @param d дата
+     * @return календарь с установленным последним днем
      */
     public static Calendar getLastDayOfMonth(Date d) {
         Calendar c = Calendar.getInstance();
@@ -186,9 +186,9 @@ public class Util {
     }
     
     /**
-     * 
-     * @param c
-     * @return 
+     * Возвращает календарь с установленны последним днем месяца.
+     * @param c календарь
+     * @return календарь с установленным последним днем
      */
     public static Calendar getLastDayOfMonth(Calendar c) {
         c.set(Calendar.DATE, c.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -198,5 +198,15 @@ public class Util {
         return c;
     }
     
-    
+    /**
+     * Вроверяет даты на свопадение месяца и года.
+     * @param first первая дата
+     * @param last вторая дата
+     * @return <b>true</b> - месяц и год совпадают,
+     * <b>false</b> - месяцу и год НЕ совпадают.
+     */
+    public static boolean validateMMYYYY(Calendar first, Calendar last) {
+        return ( (first.get(Calendar.YEAR) == last.get(Calendar.YEAR)) &&
+             (first.get(Calendar.MONTH) == last.get(Calendar.MONTH)) );
+    }
 }

@@ -15,7 +15,6 @@ import java.util.Collections;
 import static ru.nosov.SMSreader.ActivityMain.LOG_NAME;
 import ru.nosov.SMSreader.db.BankAccount;
 import ru.nosov.SMSreader.db.Card;
-import ru.nosov.SMSreader.db.Settings;
 import ru.nosov.SMSreader.db.Transaction;
 import ru.nosov.SMSreader.db.impl.BankAccountImpl;
 import ru.nosov.SMSreader.db.impl.CardImpl;
@@ -48,7 +47,7 @@ public class CleaningBDService extends Service {
   
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        Log.d(LOG_TAG, "----- Start SmsBillingService");
+        Log.d(LOG_TAG, "----- Start SmsBillingService");
         BankAccountImpl bankAccountImpl = new BankAccountImpl(this);
         // Может пока транзакциями? 39 урок
         ArrayList<BankAccount> bankAccounts = bankAccountImpl.getAllBankAccounts();
@@ -62,9 +61,9 @@ public class CleaningBDService extends Service {
             
             if ( (cards == null) || (cards.isEmpty()) ) continue;
             
-//            Log.d(LOG_TAG, "------------------------------");
-//            Log.d(LOG_TAG, "Счет: " + bankAccount.getName() + 
-//                           "; Кол-во карт: " + cards.size());
+            Log.d(LOG_TAG, "------------------------------");
+            Log.d(LOG_TAG, "Счет: " + bankAccount.getName() + 
+                           "; Кол-во карт: " + cards.size());
             
             TransactionImpl transactionImpl = new TransactionImpl(this);
             ArrayList<Transaction> transactions = transactionImpl.getTransactionsByIDCards(cards);
@@ -125,6 +124,10 @@ public class CleaningBDService extends Service {
         t.setDateSQL(Util.formatCalendarToSQL(c));
         float amount = amountMonth(transactions.get(0), transactions.get(transactions.size()-1));
         t.setAmount(amount);
+        Log.d(LOG_TAG, "Size:" + transactions.size()
+                        + "; Расчет:" + transactions.get(transactions.size()-1).getBalace()
+                        + "-" + transactions.get(0).getBalace()
+                        + "=" + amount);
         Log.d(LOG_TAG, "Новая дата:" + t.getDateSQL() + "; CID:" + t.getIdCard()
                        + " ; Затраты:" + String.valueOf(amount));
         transactionImpl.addTransaction(t);
@@ -176,13 +179,13 @@ public class CleaningBDService extends Service {
         float as = start.getBalace();
         float ae = end.getBalace();
         
-        return as - ae;
+        return ae-as;
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        Log.d(LOG_TAG, "----- Stop SmsBillingService");
+        Log.d(LOG_TAG, "----- Stop SmsBillingService");
     }
     
     /**
@@ -193,9 +196,10 @@ public class CleaningBDService extends Service {
     private int stopService(boolean b) {
         if (b) {
             SettingsImpl si = new SettingsImpl(this);
-            Settings s = new Settings();
-            s.setBilling(b);
-            si.updateSettings(s);
+//            Settings s = new Settings();
+//            s.setBilling(b);
+//            si.updateSettings(s);
+            si.updateSettingsBilling(b);
         }
         this.stopSelf();
         return START_NOT_STICKY;
