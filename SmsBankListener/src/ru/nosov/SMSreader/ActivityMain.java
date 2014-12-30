@@ -122,7 +122,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
         profileImpl.open();
         getLoaderManager().initLoader(DBHelper.LOADER_ID_PROFILE, null, this);
         
-        checkIntent();
+        validateIntent();
     }
     
     @Override
@@ -135,7 +135,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_settings:
-                textView.setText("Select Settings");
+                visibleProfilesSettingsActivity();
                 return true;
 //            case R.id.action_profiles_list:
 //                visibleProfilesListActivity();
@@ -227,7 +227,7 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
     /**
      * Проверяет intent.
      */
-    private void checkIntent() {
+    private void validateIntent() {
         Intent intent = getIntent();
         if (intent == null) return;
         
@@ -242,9 +242,10 @@ public class ActivityMain extends Activity implements LoaderManager.LoaderCallba
     /**
      * Переход на страницу списка профилей.
      */
-    private void visibleProfilesListActivity() {
-//        Intent intent = new Intent(this, ActivityProfilesSettings.class);
-//        startActivity(intent);
+    private void visibleProfilesSettingsActivity() {
+        //Intent intent = new Intent(this, ActivityProfilesSettings.class);
+        Intent intent = new Intent(this, ActivityPSTv1.class);
+        startActivity(intent);
     }
     
     private void startBillingService() {

@@ -25,6 +25,11 @@ import ru.nosov.SMSreader.db.impl.ProfileImpl;
 import ru.nosov.SMSreader.db.loaders.CursorLoaderProfile;
 
 /**
+ * Группированный список.
+ * При выделениии переходим в настройку прифилей.
+ * Имя профиля.
+ * Список карт профиля.
+ * 
  * Редактирование профилей.
  * @author Носов А.В.
  */
@@ -108,9 +113,9 @@ public class ActivityProfilesSettings extends Activity implements LoaderCallback
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
-            case R.id.action_main:
-                visibleMainActivity();
-                return true;
+//            case R.id.action_main:
+//                visibleMainActivity();
+//                return true;
             default:
                 return super.onOptionsItemSelected(menuItem);
         }

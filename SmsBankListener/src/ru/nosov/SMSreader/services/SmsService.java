@@ -5,6 +5,7 @@
  */
 package ru.nosov.SMSreader.services;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -37,7 +38,8 @@ import ru.nosov.SMSreader.utils.Util;
  * Обработка сообщения.
  * @author Носов А.В.
  */
-public class SmsService extends Service {
+//public class SmsService extends Service {
+public class SmsService extends IntentService {
     
     // Variables declaration
     private final String LOG_TAG = LOG_NAME + "SmsService";
@@ -92,8 +94,71 @@ public class SmsService extends Service {
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
   
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//        Log.d(LOG_TAG, "----- Start My Service");
+//        String sms_from = intent.getExtras().getString(SmsService.SMS_DISPLAY_ADDRESS, null);
+//        String sms_number = intent.getExtras().getString(SmsService.SMS_ORIGINATING_ADDRESS, null);
+//        String originatingAddress = getOriginatingAddress(sms_from, sms_number);
+//        String sms_body = intent.getExtras().getString(SmsService.SMS_BODY, null);
+//        Long time = intent.getExtras().getLong(SmsService.SMS_TIME_SERVICE_CENTRE, 0);
+//        notification = intent.getExtras().getBoolean(SmsService.SMS_NOTIFICATION, true);
+//        
+//        if ( (originatingAddress == null) ||
+//                (originatingAddress.equals("")) ||
+//                (sms_body == null) ||
+//                (sms_body.equals("")) ) {
+//            
+//            this.stopSelf();
+//            return super.onStartCommand(intent, flags, startId);
+//        }
+//        
+//        Log.d(LOG_TAG, sms_body);
+//        
+//        ArrayList<Phone> phones = getPhonesByAddress(sms_number);
+//        if (phones != null) {
+//            for (Phone phone : phones) {
+////                Log.d(LOG_TAG, "Phone ID=" + phone.getId() + 
+////                        "; OA=" + phone.getOriginatingAddress() + 
+////                        "; B=" + phone.getIdBank());
+//                
+//                /* Это использовалось по общим регуляркам из БД.
+//                ArrayList<Regex> regexs = getRegexByBank(phone.getIdBank());
+////                if (regexs != null)
+////                    Log.d(LOG_TAG, "Regex size=" + regexs.size());
+//                
+//                SmsBody smsBody = getBodyByRegex(regexs, sms_body);
+//                */
+//                
+//                SmsBody smsBody = createSmsBody(sms_body);
+//                if (smsBody == null) continue;
+//                else Log.d(LOG_TAG, "smsBody: C="+smsBody.getCard()+"; B="+smsBody.getBalance());
+//                
+//                smsBody.setDateTime(Util.getCalendarByTimeInMillis(time).getTime());
+//                smsBody = transformDateByBank(smsBody);
+//                if (smsBody == null) {
+//                    Log.d(LOG_TAG, "Не смог привести время");
+//                    notificationFailData("Не смог привести время", sms_body);
+//                }
+//                
+//                ArrayList<Card> cards = getCardsBySMS(phone, smsBody);
+////                if (cards != null) 
+////                    Log.d(LOG_TAG, "Card size=" + cards.size());
+//                
+//                saveTransaction(cards, smsBody);
+//            }
+//        }
+//        
+//        this.stopSelf();
+//        return super.onStartCommand(intent, flags, startId);
+//    }
+    
+    public SmsService() {
+        super("SmsService");
+    }
+    
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    protected void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "----- Start My Service");
         String sms_from = intent.getExtras().getString(SmsService.SMS_DISPLAY_ADDRESS, null);
         String sms_number = intent.getExtras().getString(SmsService.SMS_ORIGINATING_ADDRESS, null);
@@ -107,8 +172,9 @@ public class SmsService extends Service {
                 (sms_body == null) ||
                 (sms_body.equals("")) ) {
             
-            this.stopSelf();
-            return super.onStartCommand(intent, flags, startId);
+//            this.stopSelf();
+//            return super.onStartCommand(intent, flags, startId);
+            return;
         }
         
         Log.d(LOG_TAG, sms_body);
@@ -147,10 +213,9 @@ public class SmsService extends Service {
             }
         }
         
-        this.stopSelf();
-        return super.onStartCommand(intent, flags, startId);
+//        this.stopSelf();
     }
-
+    
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -393,12 +458,15 @@ public class SmsService extends Service {
             t.setAmount(smsBody.getAmount());
             t.setBalace(smsBody.getBalance());
             boolean b = transactionImpl.addTransaction(t);
-            String msg = Transaction.TABLE_NAME + " add " + card.getCardNumber() +
-                    "; C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
-                    "; A=" + t.getAmount() + "; B="+ t.getBalace() + 
-                    "; " + String.valueOf(b);
-            Log.i(LOG_TAG, msg);
-            notificationAddData("Добавленно в базу", msg);
+//            String msg = Transaction.TABLE_NAME + " add " + card.getCardNumber() +
+//                    "; C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
+//                    "; A=" + t.getAmount() + "; B="+ t.getBalace() + 
+//                    "; " + String.valueOf(b);
+//            Log.i(LOG_TAG, msg);
+            
+            notificationAddData(
+                    card.getCardNumber() + " - " + t.getAmount(), 
+                    card.getCardNumber() + " - " + t.getAmount() + "/" + t.getBalace());
         }
         transactionImpl.close();
         if (t == null) return;

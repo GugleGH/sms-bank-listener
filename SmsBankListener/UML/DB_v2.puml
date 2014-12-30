@@ -66,4 +66,9 @@ phone -down-|> regex : 1 : n
 phone --|> bank : 1 : 1
 regex -left-|> bank : 1 : 1
 
+object settings {
+    boolean billing
+    String lastBilling
+}
+
 @enduml
