@@ -76,7 +76,7 @@ public class SettingsImpl {
             ContentValues cv = new ContentValues();
             cv.put(Settings.COLUMN_BILLING, (settings.isBilling() ? 1 : 0) );
             if (settings.getLastBilling() == null) {
-                Log.e(LOG_TAG, "Отлуствует дата билинга");
+                Log.e(LOG_TAG, "Отсуствует дата билинга");
                 return;
             }
             cv.put(Settings.COLUMN_LAST_BILLING, settings.getLastBilling());

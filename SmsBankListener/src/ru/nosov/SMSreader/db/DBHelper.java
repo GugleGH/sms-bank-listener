@@ -41,7 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /** Имя БД. */
     public static final String DB_NAME = "dbSMSReader";
     /** Версия БД. */
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
     
     /** Регулярное выражение пробела или начала строки. */
     private static String REGEX_SPASE = "(?:^|\\s)";
@@ -130,6 +130,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 case 1:
                     upgradeDB1To2(db);
                     Log.i(LOG_TAG, "Обновление БД с версии 1 на версию 2 прошло успешно.");
+                    break;
+                case 2:
+                    upgradeDB2To3(db);
+                    Log.i(LOG_TAG, "Обновление БД с версии 2 на версию 3 прошло успешно.");
                     break;
                 default:
             }
@@ -279,6 +283,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + Transaction.COLUMN_ID_CARD + " INTEGER NOT NULL, "
             + Transaction.COLUMN_DATE + " TEXT NOT NULL, "
             + Transaction.COLUMN_AMOUNT + " REAL NOT NULL, "
+            + Transaction.COLUMN_PAYMENT_AMOUNT + " REAL DEFAULT 0, "
             + Transaction.COLUMN_BALANCE + " REAL NOT NULL, " 
             + Transaction.COLUMN_DESCRIPTION + " TEXT" + " );");
     }
@@ -306,6 +311,19 @@ public class DBHelper extends SQLiteOpenHelper {
                     + " ADD COLUMN " 
                     + Transaction.COLUMN_DESCRIPTION
                     + " TEXT" + ";");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private void upgradeDB2To3(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL("ALTER TABLE " + Transaction.TABLE_NAME 
+                    + " ADD COLUMN " 
+                    + Transaction.COLUMN_PAYMENT_AMOUNT
+                    + " REAL DEFAULT 0" + ";");
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

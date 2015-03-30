@@ -24,6 +24,8 @@ public class Transaction implements Comparable<Transaction> {
     public static final String COLUMN_DATE = "date";
     /** Сумма операции. */
     public static final String COLUMN_AMOUNT = "amount";
+    /** Сумма платежей. */
+    public static final String COLUMN_PAYMENT_AMOUNT = "payment_amount";
     /** Остаток на карте. */
     public static final String COLUMN_BALANCE = "balance";
     /** Описание операции. */
@@ -39,6 +41,8 @@ public class Transaction implements Comparable<Transaction> {
     private String dateSQL;
     /** Сумма операции. */
     private float amount;
+    /** Сумма платежей. */
+    private float payment_amount;
     /** Остаток на карте. */
     private float balace;
     /** Описание операции. */
@@ -126,6 +130,22 @@ public class Transaction implements Comparable<Transaction> {
      */
     public void setAmount(float amount) {
         this.amount = amount;
+    }
+
+    /**
+     * Возвращает сумму платежа.
+     * @return сумма платежа
+     */
+    public float getPayment_amount() {
+        return payment_amount;
+    }
+
+    /**
+     * Устанавливает сумму платежа.
+     * @param payment_amount сумма платежа
+     */
+    public void setPayment_amount(float payment_amount) {
+        this.payment_amount = payment_amount;
     }
 
     /**

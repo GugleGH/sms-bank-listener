@@ -210,22 +210,30 @@ public class ActivityGraph extends Activity {
             ArrayList<Transaction> ts = getTransactionsByIDCard(getCardsByIDBankAccount(ba));
             if (ts.size() < 1) continue;
             
+            float payment = 0;
+            
             for (Transaction t : ts) {
                 double d = t.getDateTime().getTime();
 //                double b = t.getBalace();
                 
                 String annot;
                 if (validateLastDayOfMonth(t))
-                    annot = t.getAmount() + 
-                        "\n(" + t.getBalace() + ")";
+                    annot = t.getAmount() + "\n(" + t.getBalace() + ")";
                 else 
                     annot = dateFormat.format(new Date((long)d)) + 
                         "\n(" + t.getAmount() + ")";
                 
+                if (validateLastMoth(t)) {
+                    payment = payment + t.getPayment_amount();
+//                    Log.d(LOG_TAG, "Payment:" + String.valueOf(t.getPayment_amount()));
+                }
+                
                 series.add(d, t.getBalace());
                 series.addAnnotation(annot, d, t.getBalace());
             }
-            String desc = ba.getName() + " / " + ts.get(ts.size()-1).getBalace();
+            String desc = ba.getName() 
+                    + " / " + String.valueOf(payment)
+                    + " / " + ts.get(ts.size()-1).getBalace();
             series.setTitle(desc);
             
             renderer.setPointStyle(PointStyle.CIRCLE);
@@ -244,7 +252,6 @@ public class ActivityGraph extends Activity {
         return graphicalView;
     }
     
-    
     /**
      * Сверяет год/месяц/день/время в транзакции с последним днем месяца.
      * @param t транзакция
@@ -255,10 +262,19 @@ public class ActivityGraph extends Activity {
         Calendar start = Util.getLastDayOfMonth(t.getDateTime());
         Calendar next = Calendar.getInstance();
         next.setTime(t.getDateTime());
-        Log.d(LOG_TAG, "Последний день/Дата внутри: " 
-                + Util.formatCalendarToSQL(start) + " | " 
-                + Util.formatCalendarToSQL(next) + " / "
-                + next.getTime().equals(start.getTime()));
-        return Util.formatCalendarToSQL(start).equals(Util.formatCalendarToSQL(next));
+        return Util.validateYYYYMMDDTT(start, next);
+    }
+    
+    /**
+     * Возвращает <i>true</i> если год и месяц в транзакции совпадают с 
+     * системным годом и месяцем.
+     * @param t транзакция
+     * @return <b>true</b> - год/месяц совпали,
+     * <b>false</b> - год/месяц/ НЕ совпали.
+     */
+    private boolean validateLastMoth(Transaction t) {
+        Calendar dateT = Util.getLastDayOfMonth(t.getDateTime());
+        Calendar dateS = Calendar.getInstance();
+        return Util.validateYYYYMM(dateT, dateS);
     }
 }

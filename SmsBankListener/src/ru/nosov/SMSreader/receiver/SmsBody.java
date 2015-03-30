@@ -19,6 +19,7 @@ public class SmsBody {
     private String time;
     private String card;
     private float amount;
+    private float payment_amount;
     private float balance;
     // End of variables declaration
     
@@ -63,6 +64,14 @@ public class SmsBody {
 
     public void setAmount(float amount) {
         this.amount = amount;
+    }
+
+    public float getPayment_amount() {
+        return payment_amount;
+    }
+
+    public void setPayment_amount(float payment_amount) {
+        this.payment_amount = payment_amount;
     }
 
     public float getBalance() {

@@ -16,6 +16,7 @@
 /media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/drawable-mdpi/ic_launcher.png \
 /media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/drawable-xhdpi/bl_icon.png \
 /media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/drawable-xhdpi/ic_launcher.png \
+/media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/layout/activity_create_profile.xml \
 /media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/layout/activity_graph.xml \
 /media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/layout/activity_main.xml \
 /media/nosov/WorkDisk/java/Mobiles/SmsBank/trunk/SmsBankListener/res/layout/activity_profiles_settings.xml \

@@ -6,6 +6,7 @@
 package ru.nosov.SMSreader.utils;
 
 import android.graphics.Color;
+import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -113,7 +114,7 @@ public class Util {
     }
     
     /**
-     * Форматирует калетдарь в формат yyyy-MM-dd hh:mm:ss.
+     * Форматирует календарь в формат yyyy-MM-dd hh:mm:ss.
      * @param c календарь
      * @return строка формата yyyy-MM-dd hh:mm:ss
      */
@@ -174,7 +175,7 @@ public class Util {
     }
     
     /**
-     * Возвращает календарь с установленны последним днем месяца.
+     * Возвращает календарь с установленным последним днем месяца.
      * @param d дата
      * @return календарь с установленным последним днем
      */
@@ -186,7 +187,7 @@ public class Util {
     }
     
     /**
-     * Возвращает календарь с установленны последним днем месяца.
+     * Возвращает календарь с установленным последним днем месяца.
      * @param c календарь
      * @return календарь с установленным последним днем
      */
@@ -199,14 +200,27 @@ public class Util {
     }
     
     /**
-     * Вроверяет даты на свопадение месяца и года.
+     * Возвращает <i>true</i>, если совпали год/месяц в датах.
      * @param first первая дата
      * @param last вторая дата
-     * @return <b>true</b> - месяц и год совпадают,
-     * <b>false</b> - месяцу и год НЕ совпадают.
+     * @return <b>true</b> - месяц/год совпадают,
+     * <b>false</b> - месяц/год НЕ совпадают.
      */
-    public static boolean validateMMYYYY(Calendar first, Calendar last) {
+    public static boolean validateYYYYMM(Calendar first, Calendar last) {
         return ( (first.get(Calendar.YEAR) == last.get(Calendar.YEAR)) &&
              (first.get(Calendar.MONTH) == last.get(Calendar.MONTH)) );
+    }
+    
+    /**
+     * Возвращает <i>true</i>, если совпали год/месяц/день/время в датах.
+     * @param first первая дата
+     * @param last вторая дата
+     * @return <b>true</b> - год/месяц/день/время совпадают,
+     * <b>false</b> - год/месяц/день/время НЕ совпадают.
+     */
+    public static boolean validateYYYYMMDDTT(Calendar first, Calendar last) {
+        String d1 = Util.formatCalendarToSQL(first);
+        String d2 = Util.formatCalendarToSQL(last);
+        return d1.equals(d2);
     }
 }

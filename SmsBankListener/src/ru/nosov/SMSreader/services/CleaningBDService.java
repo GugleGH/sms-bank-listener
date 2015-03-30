@@ -23,7 +23,7 @@ import ru.nosov.SMSreader.db.impl.TransactionImpl;
 import ru.nosov.SMSreader.utils.Util;
 
 /**
- * Обработка сообщения.
+ * Билинг.
  * @author Носов А.В.
  */
 public class CleaningBDService extends Service {
@@ -61,9 +61,10 @@ public class CleaningBDService extends Service {
             
             if ( (cards == null) || (cards.isEmpty()) ) continue;
             
-            Log.d(LOG_TAG, "------------------------------");
-            Log.d(LOG_TAG, "Счет: " + bankAccount.getName() + 
-                           "; Кол-во карт: " + cards.size());
+//            Log.d(LOG_TAG, "------------------------------");
+//            Log.d(LOG_TAG, "Счет: " + bankAccount.getName() + 
+//                           "; ID:" + bankAccount.getId() +
+//                           "; Кол-во карт: " + cards.size());
             
             TransactionImpl transactionImpl = new TransactionImpl(this);
             ArrayList<Transaction> transactions = transactionImpl.getTransactionsByIDCards(cards);
@@ -78,12 +79,7 @@ public class CleaningBDService extends Service {
                     Calendar start = Util.getFirstDayOfMonth(delList.get(0).getDateTime());
                     Calendar next = Util.getFirstDayOfMonth(transaction.getDateTime());
 
-//                    Log.d(LOG_TAG, "Проверка дат: " 
-//                            + Util.formatCalendarToSQL(start) + " | " 
-//                            + Util.formatCalendarToSQL(next) + " / " 
-//                            + start.getTime().equals(next.getTime()));
-
-                    if (start.getTime().equals(next.getTime())) {
+                    if (Util.validateYYYYMM(start, next)) {
                         delList.add(transaction);
                     } else {
                         startCleaning(delList);
@@ -111,26 +107,28 @@ public class CleaningBDService extends Service {
         if ( (transactions.size() == 1) && 
              validateLastDayOfMonth(transactions.get(0)) ) return;
         
+        float payment_amount = 0;
+        
         TransactionImpl transactionImpl = new TransactionImpl(this);
         transactionImpl.open();
         for (Transaction t : transactions) {
+            payment_amount = payment_amount + t.getPayment_amount();
             transactionImpl.deleteTransactionByID(t.getId());
 //            Log.d(LOG_TAG, "- Удалили "+transactions.get(i).getId()+" "+
 //                    transactions.get(i).getDateSQL());
         }
-        Transaction t = transactions.get(transactions.size()-1);
-//        Log.d(LOG_TAG, "Последний:" + t.getDateSQL() + "  | " + Util.formatDateToSQL(t.getDateTime()));
-        Calendar c = Util.getLastDayOfMonth(t.getDateTime());
-        t.setDateSQL(Util.formatCalendarToSQL(c));
-        float amount = amountMonth(transactions.get(0), transactions.get(transactions.size()-1));
-        t.setAmount(amount);
-        Log.d(LOG_TAG, "Size:" + transactions.size()
-                        + "; Расчет:" + transactions.get(transactions.size()-1).getBalace()
-                        + "-" + transactions.get(0).getBalace()
-                        + "=" + amount);
-        Log.d(LOG_TAG, "Новая дата:" + t.getDateSQL() + "; CID:" + t.getIdCard()
-                       + " ; Затраты:" + String.valueOf(amount));
-        transactionImpl.addTransaction(t);
+        Transaction lastT = transactions.get(transactions.size()-1);
+        Calendar c = Util.getLastDayOfMonth(lastT.getDateTime());
+        lastT.setDateSQL(Util.formatCalendarToSQL(c));
+        float amount = amountMonth(transactions.get(0), lastT);
+        lastT.setAmount(amount);
+        lastT.setPayment_amount(payment_amount);
+//        Log.d(LOG_TAG, "Size:" + transactions.size()
+//                       + "; Новая дата:" + lastT.getDateSQL() 
+//                       + "; CID:" + lastT.getIdCard()
+//                       + "; Расчет:" + String.valueOf(amount)
+//                       + "; Затраты:" + String.valueOf(payment_amount));
+        transactionImpl.addTransaction(lastT);
         
         transactionImpl.close();
     }
@@ -145,11 +143,7 @@ public class CleaningBDService extends Service {
         // Если год/месяц совпали то это текущая дата - выходим.
         Calendar start = Util.getFirstDayOfMonth(Calendar.getInstance().getTime());
         Calendar next = Util.getFirstDayOfMonth(t.getDateTime());
-//        Log.d(LOG_TAG, "Текущая дата/Первая транзакция: " 
-//                + Util.formatCalendarToSQL(start) + " | " 
-//                + Util.formatCalendarToSQL(next) + " / "
-//                + next.getTime().equals(start.getTime()));
-        return Util.formatCalendarToSQL(start).equals(Util.formatCalendarToSQL(next));
+        return Util.validateYYYYMM(start, next);
     }
     
     /**
@@ -162,11 +156,7 @@ public class CleaningBDService extends Service {
         Calendar start = Util.getLastDayOfMonth(t.getDateTime());
         Calendar next = Calendar.getInstance();
         next.setTime(t.getDateTime());
-        Log.d(LOG_TAG, "Последний день/Дата внутри: " 
-                + Util.formatCalendarToSQL(start) + " | " 
-                + Util.formatCalendarToSQL(next) + " / "
-                + next.getTime().equals(start.getTime()));
-        return Util.formatCalendarToSQL(start).equals(Util.formatCalendarToSQL(next));
+        return Util.validateYYYYMMDDTT(start, next);
     }
     
     /**
@@ -178,7 +168,7 @@ public class CleaningBDService extends Service {
     private float amountMonth(Transaction start, Transaction end) {
         float as = start.getBalace();
         float ae = end.getBalace();
-        
+//        Log.d(LOG_TAG, "AmountMonth:" + ae + "-" + as + "=" + (ae-as));
         return ae-as;
     }
     

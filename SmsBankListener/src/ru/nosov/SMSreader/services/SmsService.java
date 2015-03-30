@@ -70,9 +70,9 @@ public class SmsService extends IntentService {
     private static String REGEX_CARD_1 = "(\\*(?:\\d{4,4}))";
     /** Регулярное выражение номера карты формата 1234*1234. */
     private static String REGEX_CARD_2 = "((?:\\d{4,4})\\*(?:\\d{4,4}))";
-    /** Регулярное выражение номера карты формата *1234. */
+    /** Регулярное выражение номера карты формата +1234. */
     private static String REGEX_CARD_T1 = "(\\+(?:\\d{4,4}))";
-    /** Регулярное выражение номера карты формата 1234*1234. */
+    /** Регулярное выражение номера карты формата 1234+1234. */
     private static String REGEX_CARD_T2 = "((?:\\d{4,4})\\+(?:\\d{4,4}))";
     /** Регулярное выражение числа вида 1234.12 */
     private static String REGEX_MANY_TCHK = "((\\d+)|(?:\\d+(?:\\.\\d{0,2})))";
@@ -195,8 +195,10 @@ public class SmsService extends IntentService {
                 */
                 
                 SmsBody smsBody = createSmsBody(sms_body);
-                if (smsBody == null) continue;
-                else Log.d(LOG_TAG, "smsBody: C="+smsBody.getCard()+"; B="+smsBody.getBalance());
+                if (smsBody == null) return;
+//                else Log.d(LOG_TAG, "smsBody: C="+smsBody.getCard()+"; "
+//                                           + "PA="+smsBody.getPayment_amount()+"; "
+//                                           + "B="+smsBody.getBalance());
                 
                 smsBody.setDateTime(Util.getCalendarByTimeInMillis(time).getTime());
                 smsBody = transformDateByBank(smsBody);
@@ -208,7 +210,6 @@ public class SmsService extends IntentService {
                 ArrayList<Card> cards = getCardsBySMS(phone, smsBody);
 //                if (cards != null) 
 //                    Log.d(LOG_TAG, "Card size=" + cards.size());
-                
                 saveTransaction(cards, smsBody);
             }
         }
@@ -456,12 +457,13 @@ public class SmsService extends IntentService {
             t.setDateSQL(Util.formatDateToSQL(smsBody.getDateTime()));
             t.setDateTime(smsBody.getDateTime());
             t.setAmount(smsBody.getAmount());
+            t.setPayment_amount(smsBody.getPayment_amount());
             t.setBalace(smsBody.getBalance());
             boolean b = transactionImpl.addTransaction(t);
 //            String msg = Transaction.TABLE_NAME + " add " + card.getCardNumber() +
 //                    "; C=" + t.getIdCard() + "; D=" + t.getDateSQL() + 
-//                    "; A=" + t.getAmount() + "; B="+ t.getBalace() + 
-//                    "; " + String.valueOf(b);
+//                    "; A=" + t.getAmount() + "; PA="+ t.getPayment_amount() + 
+//                    "; B="+ t.getBalace() + "; " + String.valueOf(b);
 //            Log.i(LOG_TAG, msg);
             
             notificationAddData(
@@ -481,14 +483,14 @@ public class SmsService extends IntentService {
         Calendar first = Calendar.getInstance();
         Calendar last = Calendar.getInstance();
         last.setTime(t.getDateTime());
-        if (Util.validateMMYYYY(first, last)) return;
+        if (Util.validateYYYYMM(first, last)) return;
         
         SettingsImpl impl = new SettingsImpl(this);
         Settings s = impl.getSettings();
         if (!s.isBilling()) return;
         
         last = Util.formatSQLToDate(s.getLastBilling());
-        if (Util.validateMMYYYY(first, last)) return;
+        if (Util.validateYYYYMM(first, last)) return;
         
         impl.open();
         impl.updateSettingsBilling(true);
@@ -617,7 +619,7 @@ public class SmsService extends IntentService {
             .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT))
             .setWhen(System.currentTimeMillis()) //отображаемое время уведомления
             .setContentTitle("SmsListener") //заголовок уведомления
-            .setDefaults(Notification.DEFAULT_VIBRATE); // звук, вибро и диодный индикатор
+            .setDefaults(Notification.DEFAULT_LIGHTS); // звук, вибро и диодный индикатор
         
 //        Notification notification = nb.getNotification(); //генерируем уведомление
         Notification nn = nb.build();
@@ -637,6 +639,7 @@ public class SmsService extends IntentService {
         String amount = getAmount(sms);
         String balance = getBalance(sms);
         String data = getData(sms);
+        boolean payment = isPayment(sms);
         
         if (card == null)
             notificationFailData("Карта не найдена.", sms);
@@ -644,7 +647,7 @@ public class SmsService extends IntentService {
             notificationFailData("Сумма не найдена", sms);
         if (balance == null)
             notificationFailData("Остаток не найден", sms);
-        if (data != null)
+        if (data == null)
             notificationFailData("Дата не найдена", sms);
         
         if ( (card == null) || (amount == null) ||
@@ -656,6 +659,8 @@ public class SmsService extends IntentService {
             body.setBalance(Float.valueOf(balance.replace(",", ".")));
             body.setCard(card);
             body.setDate(data);
+            if (payment) body.setPayment_amount(Float.valueOf(amount.replace(",", ".")));
+            else body.setPayment_amount(0);
             
             return body;
         } catch (NumberFormatException ex) {
@@ -774,7 +779,8 @@ public class SmsService extends IntentService {
      * @return номер карты
      */
     private String getCard(String sms) {
-        String regex = "(?:Ka.t. " + REGEX_CARD_2 + " )";
+        String regex;
+        regex = "(?:Ka.t. " + REGEX_CARD_1 + " )";
         String card = findRegex(regex, sms);
         if (card != null) return card;
         
@@ -782,7 +788,11 @@ public class SmsService extends IntentService {
         card = findRegex(regex, sms);
         if (card != null) return card;
         
-        regex = "(?:Ka.t. " + REGEX_CARD_1 + " )";
+        regex = "(?:Ka.t. " + REGEX_CARD_2 + " )";
+        card = findRegex(regex, sms);
+        if (card != null) return card;
+        
+        regex = "(?:Ka.t. " + REGEX_CARD_2 + ";)";
         card = findRegex(regex, sms);
         if (card != null) return card;
         
@@ -790,7 +800,15 @@ public class SmsService extends IntentService {
         card = findRegex(regex, sms);
         if (card != null) return card;
         
+        regex = "(?:Ka.t. " + REGEX_CARD_T1 + ";)";
+        card = findRegex(regex, sms);
+        if (card != null) return card;
+        
         regex = "(?:Ka.t. " + REGEX_CARD_T2 + " )";
+        card = findRegex(regex, sms);
+        if (card != null) return card;
+        
+        regex = "(?:Ka.t. " + REGEX_CARD_T2 + ";)";
         card = findRegex(regex, sms);
         if (card != null) return card;
         
@@ -815,4 +833,18 @@ public class SmsService extends IntentService {
         }
     }
     
+    /**
+     * Возвращает <i>true</i> если совершена оплата услуг с карты.
+     * @param sms тело сообщения
+     * @return <b>true</b> - оплата услуг,
+     * <b>false</b> - любое другое действие
+     */
+    private boolean isPayment(String sms) {
+        String tnb = "OPLATA";
+        String rf = "Pokupka:";
+        if (sms.indexOf(tnb) > 5) return true;
+        if (sms.indexOf(rf) > 5) return true;
+        
+        return false;
+    }
 }

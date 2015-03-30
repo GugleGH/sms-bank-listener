@@ -55,18 +55,22 @@ public class TransactionImpl {
         this.open();
         Cursor c = getCursorAllTransaction();
         if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
-            int cIndex = c.getColumnIndex(Transaction.COLUMN_ID_CARD);
-            int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
-            int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
-            int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+            int cID = c.getColumnIndex(Transaction.COLUMN_ID);
+            int cIDc = c.getColumnIndex(Transaction.COLUMN_ID_CARD);
+            int cD = c.getColumnIndex(Transaction.COLUMN_DATE);
+            int cA = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
+            int cPA = c.getColumnIndex(Transaction.COLUMN_PAYMENT_AMOUNT);
+            int cB = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+            int cDP = c.getColumnIndex(Transaction.COLUMN_DESCRIPTION);
             do {
                 Transaction t = new Transaction();
-                t.setId(c.getInt(idIndex));
-                t.setIdCard(c.getInt(cIndex));
-                t.setDateSQL(c.getString(dIndex));
-                t.setAmount(c.getInt(aIndex));
-                t.setBalace(c.getInt(bIndex));
+                t.setId(c.getInt(cID));
+                t.setIdCard(c.getInt(cIDc));
+                t.setDateSQL(c.getString(cD));
+                t.setAmount(c.getInt(cA));
+                t.setPayment_amount(c.getInt(cPA));
+                t.setBalace(c.getInt(cB));
+                t.setDescription(c.getString(cDP));
                 transactions.add(t);
             } while (c.moveToNext());
         }
@@ -85,7 +89,9 @@ public class TransactionImpl {
                                          Transaction.COLUMN_ID_CARD,
                                          Transaction.COLUMN_DATE,
                                          Transaction.COLUMN_AMOUNT,
-                                         Transaction.COLUMN_BALANCE
+                                         Transaction.COLUMN_PAYMENT_AMOUNT,
+                                         Transaction.COLUMN_BALANCE,
+                                         Transaction.COLUMN_DESCRIPTION
                                        };
         
         return database.query( Transaction.TABLE_NAME, 
@@ -117,7 +123,9 @@ public class TransactionImpl {
         cv.put(Transaction.COLUMN_ID_CARD, transaction.getIdCard());
         cv.put(Transaction.COLUMN_DATE, transaction.getDateSQL());
         cv.put(Transaction.COLUMN_AMOUNT, transaction.getAmount());
+        cv.put(Transaction.COLUMN_PAYMENT_AMOUNT, transaction.getPayment_amount());
         cv.put(Transaction.COLUMN_BALANCE, transaction.getBalace());
+        cv.put(Transaction.COLUMN_DESCRIPTION, transaction.getDescription());
         database.insert(Transaction.TABLE_NAME, null, cv);
 //        this.close();
         return true;
@@ -133,7 +141,9 @@ public class TransactionImpl {
                                          Transaction.COLUMN_ID_CARD,
                                          Transaction.COLUMN_DATE,
                                          Transaction.COLUMN_AMOUNT,
-                                         Transaction.COLUMN_BALANCE
+                                         Transaction.COLUMN_PAYMENT_AMOUNT,
+                                         Transaction.COLUMN_BALANCE,
+                                         Transaction.COLUMN_DESCRIPTION
                                        };
         
         return database.query( Transaction.TABLE_NAME, 
@@ -155,18 +165,23 @@ public class TransactionImpl {
         this.open();
         Cursor c = getCursorTransactionsByIDCard(id_card);
         if (c.moveToFirst()) {
-            int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
-            int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
-            int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
-            int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+            int cID = c.getColumnIndex(Transaction.COLUMN_ID);
+            int cD  = c.getColumnIndex(Transaction.COLUMN_DATE);
+            int cA  = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
+            int cPA = c.getColumnIndex(Transaction.COLUMN_PAYMENT_AMOUNT);
+            int cB  = c.getColumnIndex(Transaction.COLUMN_BALANCE);
+            int cDP = c.getColumnIndex(Transaction.COLUMN_DESCRIPTION);
 
             do {
                 Transaction tr = new Transaction();
-                tr.setId(c.getInt(idIndex));
-                tr.setDateSQL(c.getString(dIndex));
-                tr.setDateTime(Util.formatSQLToDate(c.getString(dIndex)).getTime());
-                tr.setAmount(c.getFloat(aIndex));
-                tr.setBalace(c.getFloat(bIndex));
+                tr.setId(c.getInt(cID));
+                tr.setIdCard(id_card);
+                tr.setDateSQL(c.getString(cD));
+                tr.setDateTime(Util.formatSQLToDate(c.getString(cD)).getTime());
+                tr.setAmount(c.getFloat(cA));
+                tr.setPayment_amount(c.getFloat(cPA));
+                tr.setBalace(c.getFloat(cB));
+                tr.setDescription(c.getString(cDP));
                 transactions.add(tr);
             } while (c.moveToNext());
         }
@@ -186,24 +201,10 @@ public class TransactionImpl {
         
         this.open();
         for (Card card : cards) {
-            Cursor c = getCursorTransactionsByIDCard(card.getId());
-            if (c.moveToFirst()) {
-                int idIndex = c.getColumnIndex(Transaction.COLUMN_ID);
-                int dIndex = c.getColumnIndex(Transaction.COLUMN_DATE);
-                int aIndex = c.getColumnIndex(Transaction.COLUMN_AMOUNT);
-                int bIndex = c.getColumnIndex(Transaction.COLUMN_BALANCE);
-
-                do {
-                    Transaction tr = new Transaction();
-                    tr.setId(c.getInt(idIndex));
-                    tr.setIdCard(card.getId());
-                    tr.setDateSQL(c.getString(dIndex));
-                    tr.setDateTime(Util.formatSQLToDate(c.getString(dIndex)).getTime());
-                    tr.setAmount(c.getFloat(aIndex));
-                    tr.setBalace(c.getFloat(bIndex));
-                    transactions.add(tr);
-                } while (c.moveToNext());
-            }
+            ArrayList<Transaction> byCard = getTransactionsByIDCard(card.getId());
+            if (byCard != null)
+                for (Transaction t : byCard)
+                    transactions.add(t);
         }
         this.close();
         
